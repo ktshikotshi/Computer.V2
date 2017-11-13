@@ -339,7 +339,7 @@ namespace ComputerV2_class
             return (a / b).ToString("0.###");
         }
         //accurate to 4 decimal points....really slow with big numbers
-        double Sqrt(double x)
+        public double Sqrt(double x)
         {
             if (x <= 0)
                 return (x);
