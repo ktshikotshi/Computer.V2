@@ -4,7 +4,6 @@ using System.Globalization;
 using  System.Text.RegularExpressions;
 using static System.Double;
 using static System.Int32;
-
 namespace ComputerV2_class
 {
     public class Polynomial
@@ -20,13 +19,7 @@ namespace ComputerV2_class
         {
             _polynomia = poly;
         }
-        
-        private string[] Split(string str)
-        {
-            var s = str.Replace(".", ",");
-            return (Regex.Split(s.Replace(" ", ""), @"(\-)|(\+)|(\=)"));
-        }
-        
+       
         private string[] ManageNaturalForm(string[] expr)
         {
             const string pow1 = @"^(\d+)?(\*)?[A-Za-z](\^[1])?$";
@@ -254,7 +247,7 @@ namespace ComputerV2_class
                     $"{_termChar} = ( {b2:0.###} ± √({b3 - ac4:0.###})) / {a2:0.###}\n";
             if (b3 - ac4 > 0)
             {
-                sqRoot = Sqrt(b3 - (ac4));
+                sqRoot = Helper.Sqrt(b3 - (ac4));
                 x1 = (b2 + sqRoot) / a2;
                 x2 = (b2 - sqRoot) / a2;
                 _out += $"{_termChar + "\n"} = ({b2:0.###} ± {sqRoot:0.###}) / {a2:0.###}\n" +
@@ -262,7 +255,7 @@ namespace ComputerV2_class
             }
             else if (b3 - ac4 < 0)
             {
-                sqRoot = Sqrt((b3 - (ac4)) * -1);
+                sqRoot = Helper.Sqrt((b3 - (ac4)) * -1);
                 x1 = sqRoot/a2;
                 x2 = sqRoot/a2;
                 _out += $"{_termChar} = ({b2:0.###} ± {sqRoot:0.###} * i ) / {a2:0.###}\n{_termChar} = ({b2:0.###} / {a2:0.###}) ± ({sqRoot:0.###} / {a2:0.###}) * i\n" +
@@ -270,7 +263,7 @@ namespace ComputerV2_class
             }
             else
             {
-                sqRoot = Sqrt(b3 - (ac4));
+                sqRoot = Helper.Sqrt(b3 - (ac4));
                 x1 = (b2 + sqRoot) / a2;
                 _out = $"{_termChar} = ({b2:0.###} ± {sqRoot:0.###}) / {a2:0.###}\n----------\nDiscriminant is null, the solution is:\n{FractionView((b2 + sqRoot), a2)}\n";
             }
@@ -338,22 +331,12 @@ namespace ComputerV2_class
                 }
             return (a / b).ToString("0.###");
         }
-        //accurate to 4 decimal points....really slow with big numbers
-        public double Sqrt(double x)
-        {
-            if (x <= 0)
-                return (x);
-            var t = 0.000001;
-            while (t * t < x)
-                t += 0.000001;
-            return Convert.ToDouble(t.ToString("0.####"));
-        }
 
         public void PolySolve()
         {
             if (!(_polynomia.Length >= 2))
             {
-                var expr = Split(_polynomia);
+                var expr = Helper.Split(_polynomia);
                 //check to see if the equation is in the natural form
                 expr = ManageNaturalForm(expr);
                 _dgreeStatus = GetDegree(expr);
