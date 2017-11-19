@@ -22,14 +22,16 @@ namespace ComputerV2
             //variable/ function regex
             string varRegex = @"^([A-Za-z])+(\(\d+\))?$";
             var curr = Console.ReadLine();
+
+            bool operationSuccess = true;
             while (curr.ToLower() != "quite")
             {
-                if (!(curr.Contains("=")))
-                {
+                if (curr == "--v")
+                   foreach(var v in variables)
+                        Console.WriteLine($"{v[0]} = {v[1]}");
+                else if (!(curr.Contains("=")))
                     Console.WriteLine("missing assignment operator.");
-                    
-                }
-                else                {
+                else              {
                     string[] sTmp = Regex.Split(curr.Replace(" ", ""), @"\=");
                     //assignment
                     if (sTmp[1] != "?")
@@ -42,9 +44,10 @@ namespace ComputerV2
                             {
                                 if (Regex.IsMatch(rhs[i], varRegex, RegexOptions.IgnoreCase))
                                 {
-                                    if (findVar(variables, rhs[i]) == -1)
+                                    if (findVar(variables, rhs[i]) == -1 && !(sTmp[0].Contains($"({rhs[i]})")))
                                     {
                                         Console.WriteLine($"variable {rhs[i]} is not defined.");
+                                        operationSuccess = false;
                                         break;
                                     }
                                     else
@@ -52,22 +55,26 @@ namespace ComputerV2
                                         rhs[i] = variables[findVar(variables, rhs[i])][1];
                                     }
                                 }
+                                string str = "";
+                                foreach (var s in rhs)
+                                {
+                                    str += s;
+                                }
+                                //replace variables with values
+                                if (!(Regex.IsMatch(str, @"[a-zA-Z]+")))
+                                    sTmp[1] = calc(str);
+                                else
+                                    sTmp[1] = str;
                             }
-                            string str = "";
-                            foreach (var s in rhs)
-                            {
-                                str += s;
-                            }
-                            //replace variables with values
-                            sTmp[1] = calc(str);
                         }
                         else if (rhs.Length == 1)
                         {
                             if (Regex.IsMatch(rhs[0], varRegex, RegexOptions.IgnoreCase))
                             {
-                                if (findVar(variables, rhs[0]) == -1)
+                                if (findVar(variables, rhs[0]) == -1 && !(sTmp[0].Contains($"({rhs[0]})")))
                                 {
                                     Console.WriteLine($"variable {rhs[0]} is not defined.");
+                                    operationSuccess = false;
                                 }
                                 else { sTmp[1] = variables[findVar(variables, rhs[0])][1]; }
                             }
@@ -75,22 +82,25 @@ namespace ComputerV2
                         if (!(Regex.IsMatch(tmp[0], varRegex, RegexOptions.IgnoreCase))) return;
                         List<string> cVar = new List<string>();
 
-                        if (findVar(variables, sTmp[0]) == -1)
+                        if (operationSuccess)
                         {
-                            cVar.Add(sTmp[0]);
-                            cVar.Add(sTmp[1]);
-                            cVar[1] = sTmp[1];
-                            cVar[1] = sTmp[1];
-                            variables.Add(cVar);
+                            if (findVar(variables, sTmp[0]) == -1)
+                            {
+                                cVar.Add(sTmp[0]);
+                                cVar.Add(sTmp[1]);
+                                cVar[1] = sTmp[1];
+                                cVar[1] = sTmp[1];
+                                variables.Add(cVar);
+                            }
+                            else
+                            {
+                                cVar = variables[findVar(variables, sTmp[0])];
+                                variables.Remove(cVar);
+                                cVar[1] = sTmp[1];
+                                variables.Add(cVar);
+                            }
+                            Console.WriteLine(variables[variables.Count - 1][1]);
                         }
-                        else
-                        {
-                            cVar = variables[findVar(variables, sTmp[0])];
-                            variables.Remove(cVar);
-                            cVar[1] = sTmp[1];
-                            variables.Add(cVar);
-                        }
-                        Console.WriteLine(variables[variables.Count - 1][1]);
                     }
                     //resolution
                     else
@@ -115,18 +125,17 @@ namespace ComputerV2
                                     }
                                     else
                                     {
-                                        lhs[i] = variables[findVar(variables, lhs[i])][1];
+                                        lhs[i] = variables[findVar(variables, lhs[i])][1]; 
                                     }
                                 }
                             }
                             string str = "";
-                            foreach(var s in lhs)
+                            foreach (var s in lhs)
                             {
                                 str += s;
                             }
                             //replace variables with values
                             Console.WriteLine(calc(str));
-                            
                         }
                     }
                 }
