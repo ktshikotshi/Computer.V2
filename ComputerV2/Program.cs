@@ -34,9 +34,47 @@ namespace ComputerV2
                     //assignment
                     if (sTmp[1] != "?")
                     {
+                        string[] rhs = Regex.Split(sTmp[1], @"(\-)|(\+)|(\/)|(\*)|(\%)|(\^)|(\()|(\))");
+                        
+                        if (rhs.Length > 1)
+                        {
+                            for (var i = 0; i < rhs.Length; i++)
+                            {
+                                if (Regex.IsMatch(rhs[i], varRegex, RegexOptions.IgnoreCase))
+                                {
+                                    if (findVar(variables, rhs[i]) == -1)
+                                    {
+                                        Console.WriteLine($"variable {rhs[i]} is not defined.");
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        rhs[i] = variables[findVar(variables, rhs[i])][1];
+                                    }
+                                }
+                            }
+                            string str = "";
+                            foreach (var s in rhs)
+                            {
+                                str += s;
+                            }
+                            //replace variables with values
+                            sTmp[1] = calc(str);
+                        }
+                        else if (rhs.Length == 1)
+                        {
+                            if (Regex.IsMatch(rhs[0], varRegex, RegexOptions.IgnoreCase))
+                            {
+                                if (findVar(variables, rhs[0]) == -1)
+                                {
+                                    Console.WriteLine($"variable {rhs[0]} is not defined.");
+                                }
+                                else { sTmp[1] = variables[findVar(variables, rhs[0])][1]; }
+                            }
+                        }
                         if (!(Regex.IsMatch(tmp[0], varRegex, RegexOptions.IgnoreCase))) return;
                         List<string> cVar = new List<string>();
-                       
+
                         if (findVar(variables, sTmp[0]) == -1)
                         {
                             cVar.Add(sTmp[0]);
