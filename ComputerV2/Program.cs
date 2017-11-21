@@ -13,6 +13,9 @@ namespace ComputerV2
             //stores all the variables and their values.
             List<List<string>> variables = new List<List<string>>();
             
+            //stores all the functions and their values.
+            List<List<string>> functions = new List<List<string>>();
+            
             //create the i variable.
             List<string> tmp = new List<string>();
             tmp.Add("i");
@@ -20,7 +23,8 @@ namespace ComputerV2
             variables.Add(tmp);
 
             //variable/ function regex
-            string varRegex = @"^([A-Za-z])+(\(\d+\))?$";
+            string varRegex = @"^([A-Za-z])+$";
+            string funcRegex = @"^([A-Za-z])+(\(\d+\))$";
             var curr = Console.ReadLine();
 
             bool operationSuccess = true;
