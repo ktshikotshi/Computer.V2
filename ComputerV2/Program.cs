@@ -24,18 +24,24 @@ namespace ComputerV2
 
             //variable/ function regex
             string varRegex = @"^([A-Za-z])+$";
-            string funcRegex = @"^([A-Za-z])+(\(\d+\))$";
-            var curr = Console.ReadLine();
-
+            string funcRegex = @"^([A-Za-z]+)(\((\d+|[a-zA-Z])\))$";
+            var curr = "";
+            
             bool operationSuccess = true;
+            bool varType = true;
             while (curr.ToLower() != "quite")
             {
+                curr = Console.ReadLine();
                 if (curr == "--v")
                    foreach(var v in variables)
                         Console.WriteLine($"{v[0]} = {v[1]}");
+                else if (curr == "--f")
+                    foreach(var v in functions)
+                        Console.WriteLine($"{v[0]} = {v[1]}");
                 else if (!(curr.Contains("=")))
                     Console.WriteLine("missing assignment operator.");
-                else              {
+                else
+                {
                     string[] sTmp = Regex.Split(curr.Replace(" ", ""), @"\=");
                     //assignment
                     if (sTmp[1] != "?")
@@ -55,15 +61,23 @@ namespace ComputerV2
                                         break;
                                     }
                                     else
-                                    {
                                         rhs[i] = variables[findVar(variables, rhs[i])][1];
+                                }
+                                else if (Regex.IsMatch(rhs[i], funcRegex, RegexOptions.IgnoreCase))
+                                {
+                                    if (findVar(functions, rhs[i]) == -1 && !(sTmp[0].Contains($"({rhs[i]})")))
+                                    {
+                                        Console.WriteLine($"function {rhs[i]} is not defined.");
+                                        operationSuccess = false;
+                                        varType = false;
+                                        break;
                                     }
+                                    else
+                                        rhs[i] = functions[findVar(functions, rhs[i])][1];
                                 }
                                 string str = "";
                                 foreach (var s in rhs)
-                                {
                                     str += s;
-                                }
                                 //replace variables with values
                                 if (!(Regex.IsMatch(str, @"[a-zA-Z]+")))
                                     sTmp[1] = calc(str);
@@ -73,6 +87,8 @@ namespace ComputerV2
                         }
                         else if (rhs.Length == 1)
                         {
+                            if (Regex.IsMatch(sTmp[0], funcRegex, RegexOptions.IgnoreCase))
+                                varType = false;
                             if (Regex.IsMatch(rhs[0], varRegex, RegexOptions.IgnoreCase))
                             {
                                 if (findVar(variables, rhs[0]) == -1 && !(sTmp[0].Contains($"({rhs[0]})")))
@@ -83,9 +99,10 @@ namespace ComputerV2
                                 else { sTmp[1] = variables[findVar(variables, rhs[0])][1]; }
                             }
                         }
+                        
                         if (!(Regex.IsMatch(tmp[0], varRegex, RegexOptions.IgnoreCase))) return;
                         List<string> cVar = new List<string>();
-
+                        
                         if (operationSuccess)
                         {
                             if (findVar(variables, sTmp[0]) == -1)
@@ -94,28 +111,42 @@ namespace ComputerV2
                                 cVar.Add(sTmp[1]);
                                 cVar[1] = sTmp[1];
                                 cVar[1] = sTmp[1];
-                                variables.Add(cVar);
+                                if (varType == true)
+                                    variables.Add(cVar);
+                                else
+                                    functions.Add((cVar));
                             }
                             else
                             {
                                 cVar = variables[findVar(variables, sTmp[0])];
                                 variables.Remove(cVar);
                                 cVar[1] = sTmp[1];
-                                variables.Add(cVar);
+                                if (varType == true)
+                                    variables.Add(cVar);
+                                else
+                                    functions.Add(cVar);
                             }
-                            Console.WriteLine(variables[variables.Count - 1][1]);
+                            Console.WriteLine(varType ? variables[variables.Count - 1][1] : functions[functions.Count - 1][1]);
                         }
                     }
                     //resolution
+                    
                     else
                     {
                         string[] lhs = Regex.Split(sTmp[0], @"(\-)|(\+)|(\/)|(\*)|(\%)|(\^)|(\()|(\))");
                         if (lhs.Length < 2)
                         {
-                            if (findVar(variables, sTmp[0]) == -1)
-                                Console.WriteLine($"variable {sTmp[0]} is not defined.");
+                            if (Regex.IsMatch(sTmp[0], varRegex, RegexOptions.IgnoreCase))
+                            {
+                                if (findVar(variables, sTmp[0]) == -1)
+                                    Console.WriteLine($"variable {sTmp[0]} is not defined.");
+                                else
+                                    Console.WriteLine(variables[findVar(variables, sTmp[0])][1]);
+                            }
                             else
-                                Console.WriteLine(variables[findVar(variables, sTmp[0])][1]);
+                            {
+                                Console.WriteLine(sTmp[0]);
+                            }
                         }
                         else
                         {
@@ -143,7 +174,6 @@ namespace ComputerV2
                         }
                     }
                 }
-                curr = Console.ReadLine();
             }
         }
         public static string calc(string expr)
