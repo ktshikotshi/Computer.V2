@@ -53,18 +53,18 @@ namespace ComputerV2
                             {
                                 if (Regex.IsMatch(rhs[i], varRegex, RegexOptions.IgnoreCase))
                                 {
-                                    if (findVar(variables, rhs[i]) == -1 && !(sTmp[0].Contains($"({rhs[i]})")))
+                                    if (FindVar(variables, rhs[i]) == -1 && !(sTmp[0].Contains($"({rhs[i]})")))
                                     {
                                         Console.WriteLine($"variable {rhs[i]} is not defined.");
                                         operationSuccess = false;
                                         break;
                                     }
                                     else
-                                        rhs[i] = variables[findVar(variables, rhs[i])][1];
+                                        rhs[i] = variables[FindVar(variables, rhs[i])][1];
                                 }
                                 else if (Regex.IsMatch(rhs[i], funcRegex, RegexOptions.IgnoreCase))
                                 {
-                                    if (findVar(functions, rhs[i]) == -1 && !(sTmp[0].Contains($"({rhs[i]})")))
+                                    if (FindVar(functions, rhs[i]) == -1 && !(sTmp[0].Contains($"({rhs[i]})")))
                                     {
                                         Console.WriteLine($"function {rhs[i]} is not defined.");
                                         operationSuccess = false;
@@ -72,14 +72,14 @@ namespace ComputerV2
                                         break;
                                     }
                                     else
-                                        rhs[i] = functions[findVar(functions, rhs[i])][1];
+                                        rhs[i] = functions[FindVar(functions, rhs[i])][1];
                                 }
                                 string str = "";
                                 foreach (var s in rhs)
                                     str += s;
                                 //replace variables with values
                                 if (!(Regex.IsMatch(str, @"[a-zA-Z]+")))
-                                    sTmp[1] = myMaths.calc(str);
+                                    sTmp[1] = MyMaths.Calc(str);
                                 else
                                     sTmp[1] = str;
                             }
@@ -90,12 +90,12 @@ namespace ComputerV2
                                 varType = false;
                             if (Regex.IsMatch(rhs[0], varRegex, RegexOptions.IgnoreCase))
                             {
-                                if (findVar(variables, rhs[0]) == -1 && !(sTmp[0].Contains($"({rhs[0]})")))
+                                if (FindVar(variables, rhs[0]) == -1 && !(sTmp[0].Contains($"({rhs[0]})")))
                                 {
                                     Console.WriteLine($"variable {rhs[0]} is not defined.");
                                     operationSuccess = false;
                                 }
-                                else { sTmp[1] = variables[findVar(variables, rhs[0])][1]; }
+                                else { sTmp[1] = variables[FindVar(variables, rhs[0])][1]; }
                             }
                         }
                         
@@ -104,7 +104,7 @@ namespace ComputerV2
                         
                         if (operationSuccess)
                         {
-                            if (findVar(variables, sTmp[0]) == -1)
+                            if (FindVar(variables, sTmp[0]) == -1)
                             {
                                 cVar.Add(sTmp[0]);
                                 cVar.Add(sTmp[1]);
@@ -117,7 +117,7 @@ namespace ComputerV2
                             }
                             else
                             {
-                                cVar = variables[findVar(variables, sTmp[0])];
+                                cVar = variables[FindVar(variables, sTmp[0])];
                                 variables.Remove(cVar);
                                 cVar[1] = sTmp[1];
                                 if (varType == true)
@@ -137,10 +137,10 @@ namespace ComputerV2
                         {
                             if (Regex.IsMatch(sTmp[0], varRegex, RegexOptions.IgnoreCase))
                             {
-                                if (findVar(variables, sTmp[0]) == -1)
+                                if (FindVar(variables, sTmp[0]) == -1)
                                     Console.WriteLine($"variable {sTmp[0]} is not defined.");
                                 else
-                                    Console.WriteLine(variables[findVar(variables, sTmp[0])][1]);
+                                    Console.WriteLine(variables[FindVar(variables, sTmp[0])][1]);
                             }
                             else
                             {
@@ -152,14 +152,14 @@ namespace ComputerV2
                             for (var i = 0; i < lhs.Length; i++) {
                                 if (Regex.IsMatch(lhs[i], varRegex, RegexOptions.IgnoreCase))
                                 {
-                                    if (findVar(variables, lhs[i]) == -1)
+                                    if (FindVar(variables, lhs[i]) == -1)
                                     {
                                         Console.WriteLine($"variable {lhs[i]} is not defined.");
                                         break;
                                     }
                                     else
                                     {
-                                        lhs[i] = variables[findVar(variables, lhs[i])][1]; 
+                                        lhs[i] = variables[FindVar(variables, lhs[i])][1]; 
                                     }
                                 }
                             }
@@ -169,14 +169,13 @@ namespace ComputerV2
                                 str += s;
                             }
                             //replace variables with values
-                            Console.WriteLine(myMaths.calc(str));
+                            Console.WriteLine(MyMaths.Calc(str));
                         }
                     }
                 }
             }
         }
-        
-        public static int findVar(List<List<string>> variables, string str)
+        public static int FindVar(List<List<string>> variables, string str)
         {
             List<string> cVar = new List<string>();
             for (var i = 1; i < variables.Count; i++)

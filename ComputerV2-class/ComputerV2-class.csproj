@@ -41,6 +41,7 @@
   <ItemGroup>
     <Compile Include="myMaths.cs" />
     <Compile Include="Helper.cs" />
+    <Compile Include="parser.cs" />
     <Compile Include="Polynomial.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

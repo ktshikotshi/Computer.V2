@@ -4,9 +4,9 @@ using System.Collections.Generic;
 
 namespace ComputerV2_class
 {
-    public static  class myMaths
+    public static  class MyMaths
     {
-        public static string calc(string expr)
+        public static string Calc(string expr)
         {
             string[] arr = Regex.Split(expr, @"(\-)|(\+)|(\/)|(\*)|(\%)|(\^)|(\()|(\))");
             List<string> numbs = new List<string>();
@@ -15,9 +15,9 @@ namespace ComputerV2_class
                 if (n != "")
                     numbs.Add(n);
             }
-            brackets(ref numbs);
-            power(ref numbs);
-            multDiv(ref numbs);
+            Brackets(ref numbs);
+            Power(ref numbs);
+            MultDiv(ref numbs);
             for (var i = 0; i < numbs.Count; i++)
             {
                 if (numbs[i] == "+" )
@@ -37,7 +37,7 @@ namespace ComputerV2_class
             }
             return numbs[0];
         }
-        public static void brackets(ref List<string> expr)
+        public static void Brackets(ref List<string> expr)
         {
             int countBraces = 0;
             bool fBrace = false;
@@ -66,7 +66,7 @@ namespace ComputerV2_class
                     {
                         tmp += expr[j];
                     }
-                    tmp = calc(tmp);
+                    tmp = Calc(tmp);
                     expr[braceLoc[0] - 1] = tmp;
                     expr.RemoveRange(braceLoc[0], (braceLoc[1] - braceLoc[0]) + 1);
                     i = 0;
@@ -74,7 +74,7 @@ namespace ComputerV2_class
                 }
             }
         }
-        public  static void power(ref List<string> expr)
+        public  static void Power(ref List<string> expr)
         {
             double pow = 0, val = 0;
             for (var j = 0; j < expr.Count; j++)
@@ -92,7 +92,7 @@ namespace ComputerV2_class
                 }
             }
         }
-        public static void multDiv(ref List<string> numbs)
+        public static void MultDiv(ref List<string> numbs)
         {
             for (var i = 0; i < numbs.Count; i++)
             {
@@ -118,6 +118,16 @@ namespace ComputerV2_class
                     i = 0;
                 }
             }
+        }
+        //accurate to 4 decimal points....really slow with big numbers
+        public static double Sqrt(double x)
+        {
+            if (x <= 0)
+                return (x);
+            var t = 0.000001;
+            while (t * t < x)
+                t += 0.000001;
+            return Convert.ToDouble(t.ToString("0.####"));
         }
     }
 }
