@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using ComputerV2_class;
+
 namespace ComputerV2
 {
     internal class Program
@@ -14,29 +15,17 @@ namespace ComputerV2
             
             //stores all the functions and their values.
             List<List<string>> functions = new List<List<string>>();
-            
-            //create the i variable.
-            List<string> tmp = new List<string>();
-            tmp.Add("i");
-            tmp.Add("0");
-            variables.Add(tmp);
-
-            //variable/ function regex
-            string varRegex = @"^([A-Za-z])+$";
-            string funcRegex = @"^([A-Za-z]+)(\((\d+|[a-zA-Z])\))$";
+      
             var curr = "";
-            
-            bool operationSuccess = true;
-            bool varType = true;
             while (curr.ToLower() != "quite")
             {
-                curr = Console.ReadLine();
+                curr = Console.ReadLine().ToLower();
                 if (curr == "--v")
                    foreach(var v in variables)
                         Console.WriteLine($"{v[0]} = {v[1]}");
                 else if (curr == "--f")
-                    foreach(var v in functions)
-                        Console.WriteLine($"{v[0]} = {v[1]}");
+                    foreach(var f in functions)
+                        Console.WriteLine($"{f[0]}({f[1]}) = {f[2]}");
                 else if (!(curr.Contains("=")))
                     Console.WriteLine("missing assignment operator.");
                 else
@@ -45,132 +34,14 @@ namespace ComputerV2
                     //assignment
                     if (sTmp[1] != "?")
                     {
-                        string[] rhs = Regex.Split(sTmp[1], @"(\-)|(\+)|(\/)|(\*)|(\%)|(\^)|(\()|(\))");
-                        
-                        if (rhs.Length > 1)
-                        {
-                            for (var i = 0; i < rhs.Length; i++)
-                            {
-                                if (Regex.IsMatch(rhs[i], varRegex, RegexOptions.IgnoreCase))
-                                {
-                                    if (FindVar(variables, rhs[i]) == -1 && !(sTmp[0].Contains($"({rhs[i]})")))
-                                    {
-                                        Console.WriteLine($"variable {rhs[i]} is not defined.");
-                                        operationSuccess = false;
-                                        break;
-                                    }
-                                    else
-                                        rhs[i] = variables[FindVar(variables, rhs[i])][1];
-                                }
-                                else if (Regex.IsMatch(rhs[i], funcRegex, RegexOptions.IgnoreCase))
-                                {
-                                    if (FindVar(functions, rhs[i]) == -1 && !(sTmp[0].Contains($"({rhs[i]})")))
-                                    {
-                                        Console.WriteLine($"function {rhs[i]} is not defined.");
-                                        operationSuccess = false;
-                                        varType = false;
-                                        break;
-                                    }
-                                    else
-                                        rhs[i] = functions[FindVar(functions, rhs[i])][1];
-                                }
-                                string str = "";
-                                foreach (var s in rhs)
-                                    str += s;
-                                //replace variables with values
-                                if (!(Regex.IsMatch(str, @"[a-zA-Z]+")))
-                                    sTmp[1] = MyMaths.Calc(str);
-                                else
-                                    sTmp[1] = str;
-                            }
-                        }
-                        else if (rhs.Length == 1)
-                        {
-                            if (Regex.IsMatch(sTmp[0], funcRegex, RegexOptions.IgnoreCase))
-                                varType = false;
-                            if (Regex.IsMatch(rhs[0], varRegex, RegexOptions.IgnoreCase))
-                            {
-                                if (FindVar(variables, rhs[0]) == -1 && !(sTmp[0].Contains($"({rhs[0]})")))
-                                {
-                                    Console.WriteLine($"variable {rhs[0]} is not defined.");
-                                    operationSuccess = false;
-                                }
-                                else { sTmp[1] = variables[FindVar(variables, rhs[0])][1]; }
-                            }
-                        }
-                        
-                        if (!(Regex.IsMatch(tmp[0], varRegex, RegexOptions.IgnoreCase))) return;
-                        List<string> cVar = new List<string>();
-                        
-                        if (operationSuccess)
-                        {
-                            if (FindVar(variables, sTmp[0]) == -1)
-                            {
-                                cVar.Add(sTmp[0]);
-                                cVar.Add(sTmp[1]);
-                                cVar[1] = sTmp[1];
-                                cVar[1] = sTmp[1];
-                                if (varType == true)
-                                    variables.Add(cVar);
-                                else
-                                    functions.Add((cVar));
-                            }
-                            else
-                            {
-                                cVar = variables[FindVar(variables, sTmp[0])];
-                                variables.Remove(cVar);
-                                cVar[1] = sTmp[1];
-                                if (varType == true)
-                                    variables.Add(cVar);
-                                else
-                                    functions.Add(cVar);
-                            }
-                            Console.WriteLine(varType ? variables[variables.Count - 1][1] : functions[functions.Count - 1][1]);
-                        }
+                        if (!(Parser.Assign(sTmp[0], sTmp[1], ref variables, ref functions))) Console.WriteLine("Error in input.");
                     }
                     //resolution
                     
                     else
                     {
-                        string[] lhs = Regex.Split(sTmp[0], @"(\-)|(\+)|(\/)|(\*)|(\%)|(\^)|(\()|(\))");
-                        if (lhs.Length < 2)
-                        {
-                            if (Regex.IsMatch(sTmp[0], varRegex, RegexOptions.IgnoreCase))
-                            {
-                                if (FindVar(variables, sTmp[0]) == -1)
-                                    Console.WriteLine($"variable {sTmp[0]} is not defined.");
-                                else
-                                    Console.WriteLine(variables[FindVar(variables, sTmp[0])][1]);
-                            }
-                            else
-                            {
-                                Console.WriteLine(sTmp[0]);
-                            }
-                        }
-                        else
-                        {
-                            for (var i = 0; i < lhs.Length; i++) {
-                                if (Regex.IsMatch(lhs[i], varRegex, RegexOptions.IgnoreCase))
-                                {
-                                    if (FindVar(variables, lhs[i]) == -1)
-                                    {
-                                        Console.WriteLine($"variable {lhs[i]} is not defined.");
-                                        break;
-                                    }
-                                    else
-                                    {
-                                        lhs[i] = variables[FindVar(variables, lhs[i])][1]; 
-                                    }
-                                }
-                            }
-                            string str = "";
-                            foreach (var s in lhs)
-                            {
-                                str += s;
-                            }
-                            //replace variables with values
-                            Console.WriteLine(MyMaths.Calc(str));
-                        }
+                        var sub = Parser.Substitute(sTmp[0], functions, variables);
+                        Console.WriteLine($"{MyMaths.Calc(sub)}");
                     }
                 }
             }
