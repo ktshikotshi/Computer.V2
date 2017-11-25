@@ -13,6 +13,7 @@ namespace ComputerV2_class
             {
                 val = Substitute(val, funcs, vars);
                 val = ManageNaturalForm(val, expr);
+                val = reduce(val, expr);
                 if (AssignFunction(expr, val, ref funcs)) return true;
             }
             rgx_str = @"[a-zA-Z]+";
@@ -104,7 +105,7 @@ namespace ComputerV2_class
             for (var i = 0; i < matches.Count; i++)
                 var[i] = matches[i].Value;
             foreach (var v in var)
-            if (v != func[1]) return false;
+                if (v != func[1]) return false;
             for (var i = 0; i < funcs.Count; i++)
             {
                 if (funcs[i][0] == func[0])
@@ -162,6 +163,39 @@ namespace ComputerV2_class
             foreach (var s in expr)
                 tmp += s;
             return tmp;
+        }
+        private static string reduce(string f, string var)
+        {
+            string[] expr = Helper.Split(f);
+            var = Regex.Split(var, @"\(|\)")[1];
+            const string pow1 = @"^(\d+)?(\*)?[A-Za-z](\^[1])?$";
+            const string pow2 = @"^(\d+)?(\*)?[A-Za-z]\^[2]$";
+            const string pow0 = @"^\d+$";
+            double a = 0, b = 0, c = 0;
+            a = reduce_helper(expr, pow2);
+            b = reduce_helper(expr, pow1);
+            c = reduce_helper(expr, pow0);
+            string tmp = "";
+            tmp += a != 0 ? (a > 0 ? $"+{a}": a.ToString())  + $"*{var}^2" : "";
+            tmp += b != 0 ? (b > 0 ? $"+{b}" : b.ToString()) + $"*{var}" : "";
+            tmp += c != 0 ? (c > 0 ? $"+{c}" : c.ToString()) : "";
+            return tmp;
+        }
+        private static double reduce_helper(string[] value, string rgx)
+        {
+            double ret =0d;
+            var prev = ""; 
+            foreach (var v in value)
+            {
+                if (Regex.IsMatch(v, rgx))
+                {
+                    double tmp = 0d;
+                    double.TryParse(Regex.Match(prev + v, @"((\+)|(\-))?\d+").Value, out tmp);
+                    ret += tmp;
+                }
+                prev = v;
+            }
+            return ret;
         }
     }
 }
