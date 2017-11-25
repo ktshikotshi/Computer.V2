@@ -12,6 +12,7 @@ namespace ComputerV2_class
             if (rgx.IsMatch(expr))
             {
                 val = Substitute(val, funcs, vars);
+                val = ManageNaturalForm(val, expr);
                 if (AssignFunction(expr, val, ref funcs)) return true;
             }
             rgx_str = @"[a-zA-Z]+";
@@ -51,7 +52,7 @@ namespace ComputerV2_class
                             {
                                 if (v[0] == func[1])
                                 {
-                                    rplc = rplc.Replace(f[1], $"*({v[1]})");
+                                    rplc = rplc.Replace(f[1], $"({v[1]})");
                                     rplc = MyMaths.Calc(rplc);
                                     expr = expr.Replace(tmp, rplc);
                                     break;
@@ -64,7 +65,7 @@ namespace ComputerV2_class
                         }
                         else
                         {
-                            rplc = rplc.Replace(f[1], $"*({func[1]})");
+                            rplc = rplc.Replace(f[1], $"({func[1]})");
                             rplc = MyMaths.Calc(rplc);
                             expr = expr.Replace(tmp, rplc);   
                         }
@@ -137,6 +138,30 @@ namespace ComputerV2_class
             newVar.Add(value);
             vars.Add(newVar);
             return true;
+        }
+        private static string ManageNaturalForm(string f, string var)
+        {
+            string[] expr = Helper.Split(f);
+            var = Regex.Split(var, @"\(|\)")[1];
+            const string pow1 = @"^(\d+)?(\*)?[A-Za-z](\^[1])?$";
+            const string pow2 = @"^(\d+)?(\*)?[A-Za-z]\^[2]$";
+            const string pow0 = @"^(\d+)((\*)?[A-Za-z]\^[0])?$";
+
+            for (var i = 0; i < expr.Length; i++)
+            {
+                if (Regex.IsMatch(expr[i], pow2, RegexOptions.IgnoreCase))
+                    expr[i] = (Regex.IsMatch(expr[i], @"^(\d+\,)?\d+", RegexOptions.IgnoreCase) ?
+                        Regex.Match(expr[i], @"^(\d+\,)?\d+", RegexOptions.IgnoreCase).ToString() : "1") + "*" + var + "^2";
+                else if (Regex.IsMatch(expr[i], pow1, RegexOptions.IgnoreCase))
+                    expr[i] = (Regex.IsMatch(expr[i], @"^(\d+\,)?\d+", RegexOptions.IgnoreCase) ?
+                        Regex.Match(expr[i], @"^(\d+\,)?\d+", RegexOptions.IgnoreCase).ToString() : "1") + "*" + var + "^1";
+                else if (Regex.IsMatch(expr[i], pow0, RegexOptions.IgnoreCase))
+                    expr[i] = Regex.Match(expr[i], @"^(\d+\,)?\d+", RegexOptions.IgnoreCase).Value;
+            }
+            string tmp = "";
+            foreach (var s in expr)
+                tmp += s;
+            return tmp;
         }
     }
 }
