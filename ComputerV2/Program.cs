@@ -19,6 +19,7 @@ namespace ComputerV2
             var curr = "";
             while (curr.ToLower() != "quite")
             {
+                Console.Write("> ");
                 curr = Console.ReadLine().ToLower();
                 if (curr == "--v")
                    foreach(var v in variables)
@@ -34,14 +35,16 @@ namespace ComputerV2
                     //assignment
                     if (sTmp[1] != "?")
                     {
-                        if (!(Parser.Assign(sTmp[0], sTmp[1], ref variables, ref functions))) Console.WriteLine("Error in input.");
+                        var parse = Parser.Assign(sTmp[0], sTmp[1], ref variables, ref functions);
+                        if (!(parse.Success)) Console.WriteLine(parse.Message);
+                        else Console.WriteLine($"  {parse.Value}");
                     }
                     //resolution
                     
                     else
                     {
                         var sub = Parser.Substitute(sTmp[0], functions, variables);
-                        Console.WriteLine($"{MyMaths.Calc(sub)}");
+                        Console.WriteLine($"  {MyMaths.Calc(sub)}");
                     }
                 }
             }

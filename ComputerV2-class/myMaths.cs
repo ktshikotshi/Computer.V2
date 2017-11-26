@@ -12,7 +12,7 @@ namespace ComputerV2_class
             List<string> numbs = new List<string>();
             foreach (var n in arr)
             {
-                if (n != "")
+                if (n != "" && n != " ")
                     numbs.Add(n);
             }
             Brackets(ref numbs);

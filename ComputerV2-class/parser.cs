@@ -5,25 +5,29 @@ namespace ComputerV2_class
 {
     public static class Parser
     {
-        public static bool Assign(string expr, string val, ref List<List<string>> vars, ref List<List<string>> funcs)
+        public static (bool Success, string Message, string Value) Assign(string expr, string val, ref List<List<string>> vars, ref List<List<string>> funcs)
         {
-            var rgx_str = @"([a-zA-Z]+\(([a-zA-Z]+)|(\d+)\))";
+            var rgx_str = @"([a-zA-Z]+\(([a-zA-Z]+)|(\d+([\.,]\d+)?)\))";
             Regex rgx = new Regex(rgx_str);
             if (rgx.IsMatch(expr))
             {
                 val = Substitute(val, funcs, vars);
                 val = ManageNaturalForm(val, expr);
                 val = reduce(val, expr);
-                if (AssignFunction(expr, val, ref funcs)) return true;
+                if (AssignFunction(expr, val, ref funcs).Success) return (true, null, AssignFunction(expr, val, ref funcs).Value);
+                else
+                    return (false, AssignFunction(expr, val, ref funcs).Message, null);
             }
             rgx_str = @"[a-zA-Z]+";
             rgx = new Regex(rgx_str);
             if (rgx.IsMatch(expr))
             {
                 val = Substitute(val, funcs, vars);
-                if (AssignVariable(expr, val, ref vars)) return true;
+                if (AssignVariable(expr, val, ref vars).Success) return (true, null, AssignVariable(expr, val, ref vars).Value);
+                else
+                    return (false, AssignVariable(expr, val, ref vars).Message, null);
             }
-            return false;
+            return (false, "No variable or Function found", null);
         }
 
         public static string Substitute(string expr, List<List<string>> funcs, List<List<string>> vars)
@@ -35,7 +39,7 @@ namespace ComputerV2_class
 
         private static string MatchFunction(string expr, List<List<string>> funcs, List<List<string>> vars)
         {
-            Regex rgx = new Regex(@"(((\-|\+)(\s+)?)?[a-zA-Z]+\((([a-zA-Z]+)|(\d+))\))", RegexOptions.None);
+            Regex rgx = new Regex(@"(((\-|\+)(\s+)?)?[a-zA-Z]+\((([a-zA-Z]+)|(\d+([\.,]\d+)?))\))", RegexOptions.None);
             var match = rgx.Match(expr);
             while (match.Success)
             {
@@ -97,7 +101,7 @@ namespace ComputerV2_class
             return expr;
         }
         
-        private static bool AssignFunction(string expr, string value, ref List<List<string>> funcs)
+        private static (bool Success, string Message, string Value) AssignFunction(string expr, string value, ref List<List<string>> funcs)
         {
             string[] func = Regex.Split(expr, @"\(|\)");
             var matches = Regex.Matches(value, @"[a-zA-Z]+");
@@ -105,7 +109,7 @@ namespace ComputerV2_class
             for (var i = 0; i < matches.Count; i++)
                 var[i] = matches[i].Value;
             foreach (var v in var)
-                if (v != func[1]) return false;
+                if (v != func[1]) return (false, "Function should only contain one variable", null);
             for (var i = 0; i < funcs.Count; i++)
             {
                 if (funcs[i][0] == func[0])
@@ -113,7 +117,7 @@ namespace ComputerV2_class
                     if (funcs[i][1] != func[1])
                         funcs[i][1] = func[1];
                     funcs[i][2] = value;
-                    return true;
+                    return (true, null, funcs[i][2]);
                 }
             }
             var newFunc = new List<string>();
@@ -121,43 +125,43 @@ namespace ComputerV2_class
             newFunc.Add(func[1]);
             newFunc.Add(value);
             funcs.Add(newFunc);
-            return true;
+            return (true, null, funcs[funcs.Count - 1][2]);
         }
 
-        private static bool AssignVariable(string expr, string value, ref List<List<string>> vars)
+        private static (bool Success, string Message, string Value) AssignVariable(string expr, string value, ref List<List<string>> vars)
         {
             for (var i = 0; i < vars.Count; i++)
             {
                 if (vars[i][0] == expr)
                 {
                     vars[i][1] = MyMaths.Calc(value);
-                    return true;
+                    return (true, null, vars[i][1]);
                 }
             }
             var newVar = new List<string>();
             newVar.Add(expr);
             newVar.Add(value);
             vars.Add(newVar);
-            return true;
+            return (true, null, vars[vars.Count - 1][1]);
         }
         private static string ManageNaturalForm(string f, string var)
         {
             string[] expr = Helper.Split(f);
             var = Regex.Split(var, @"\(|\)")[1];
-            const string pow1 = @"^(\d+)?(\*)?[A-Za-z](\^[1])?$";
-            const string pow2 = @"^(\d+)?(\*)?[A-Za-z]\^[2]$";
-            const string pow0 = @"^(\d+)((\*)?[A-Za-z]\^[0])?$";
+            const string pow1 = @"^(\d+([\.,]\d+)?)?(\*)?[A-Za-z](\^[1])?$";
+            const string pow2 = @"^(\d+([\.,]\d+)?)?(\*)?[A-Za-z]\^[2]$";
+            const string pow0 = @"^(\d+([\.,]\d+)?)((\*)?[A-Za-z]\^[0])?$";
 
             for (var i = 0; i < expr.Length; i++)
             {
                 if (Regex.IsMatch(expr[i], pow2, RegexOptions.IgnoreCase))
-                    expr[i] = (Regex.IsMatch(expr[i], @"^(\d+\,)?\d+", RegexOptions.IgnoreCase) ?
-                        Regex.Match(expr[i], @"^(\d+\,)?\d+", RegexOptions.IgnoreCase).ToString() : "1") + "*" + var + "^2";
+                    expr[i] = (Regex.IsMatch(expr[i], @"^\d+([\.,]\d+)?", RegexOptions.IgnoreCase) ?
+                        Regex.Match(expr[i], @"^\d+([\.,]\d+)?", RegexOptions.IgnoreCase).ToString() : "1") + var + "^2";
                 else if (Regex.IsMatch(expr[i], pow1, RegexOptions.IgnoreCase))
-                    expr[i] = (Regex.IsMatch(expr[i], @"^(\d+\,)?\d+", RegexOptions.IgnoreCase) ?
-                        Regex.Match(expr[i], @"^(\d+\,)?\d+", RegexOptions.IgnoreCase).ToString() : "1") + "*" + var + "^1";
+                    expr[i] = (Regex.IsMatch(expr[i], @"^\d+([\.,]\d+)?", RegexOptions.IgnoreCase) ?
+                        Regex.Match(expr[i], @"^\d+([\.,]\d+)?", RegexOptions.IgnoreCase).ToString() : "1") + var + "^1";
                 else if (Regex.IsMatch(expr[i], pow0, RegexOptions.IgnoreCase))
-                    expr[i] = Regex.Match(expr[i], @"^(\d+\,)?\d+", RegexOptions.IgnoreCase).Value;
+                    expr[i] = Regex.Match(expr[i], @"^\d+([\.,]\d+)?", RegexOptions.IgnoreCase).Value;
             }
             string tmp = "";
             foreach (var s in expr)
@@ -166,31 +170,45 @@ namespace ComputerV2_class
         }
         private static string reduce(string f, string var)
         {
+            f = reduce_helper1(f);
             string[] expr = Helper.Split(f);
             var = Regex.Split(var, @"\(|\)")[1];
-            const string pow1 = @"^(\d+)?(\*)?[A-Za-z](\^[1])?$";
-            const string pow2 = @"^(\d+)?(\*)?[A-Za-z]\^[2]$";
-            const string pow0 = @"^\d+$";
+            const string pow1 = @"^((\d+)([\.,]\d+)?)?(\*)?[A-Za-z](\^[1])?$";
+            const string pow2 = @"^((\d+)([\.,]\d+)?)?(\*)?[A-Za-z]\^[2]$";
+            const string pow0 = @"^\d+([\.,]\d+)?$";
             double a = 0, b = 0, c = 0;
             a = reduce_helper(expr, pow2);
             b = reduce_helper(expr, pow1);
             c = reduce_helper(expr, pow0);
             string tmp = "";
-            tmp += a != 0 ? (a > 0 ? $"+{a}": a.ToString())  + $"*{var}^2" : "";
-            tmp += b != 0 ? (b > 0 ? $"+{b}" : b.ToString()) + $"*{var}" : "";
-            tmp += c != 0 ? (c > 0 ? $"+{c}" : c.ToString()) : "";
+            tmp += a != 0 ? (a > 0 ? a.ToString(): " " + a.ToString())  + $"*{var}^2" : "";
+            tmp += b != 0 ? (b > 0 ? (tmp == ""? b.ToString() : $" + {b}") : " " + b.ToString()) + $"*{var}" : "";
+            tmp += c != 0 ? (c > 0 ? (tmp == "" ? c.ToString() : $" + {c}") : " " + c.ToString()) : "";
             return tmp;
+        }
+        private static string reduce_helper1(string f)
+        {
+            var rgx = new Regex(@"(((\-|\+)?\d+([\.,]\d+)?)(\/|\%|\*)((\-|\+)?\d+([\.,]\d+)?))");
+            var match = rgx.Match(f);
+            while (match.Success)
+            {
+                var str = Regex.Replace(match.Value, @"(\-|\+)?\d+([\.,]\d+)?", m => string.Format(@"0{0}", m.Value));
+                var tmp = MyMaths.Calc(str);
+                f = f.Replace(match.Value, tmp.Contains("-")? tmp : "+"+tmp);
+                match = rgx.Match(f);
+            }
+            return f;
         }
         private static double reduce_helper(string[] value, string rgx)
         {
             double ret =0d;
-            var prev = ""; 
+            var prev = "";
             foreach (var v in value)
             {
                 if (Regex.IsMatch(v, rgx))
                 {
                     double tmp = 0d;
-                    double.TryParse(Regex.Match(prev + v, @"((\+)|(\-))?\d+").Value, out tmp);
+                    double.TryParse(Regex.Match(prev + v, @"((\+)|(\-))?\d+([\.,]\d+)?").Value, out tmp);
                     ret += tmp;
                 }
                 prev = v;
