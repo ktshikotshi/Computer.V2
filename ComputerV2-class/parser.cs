@@ -157,6 +157,7 @@ namespace ComputerV2_class
             return (true, null, vars[vars.Count - 1][1]);
         }
 
+        //needs to function with higher degrees
         private static string ManageNaturalForm(string f, string var)
         {
             string[] expr = Helper.Split(f);
