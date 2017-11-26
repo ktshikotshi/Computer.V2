@@ -28,7 +28,7 @@ namespace ComputerV2
                     foreach(var f in functions)
                         Console.WriteLine($"{f[0]}({f[1]}) = {f[2]}");
                 else if (!(curr.Contains("=")))
-                    Console.WriteLine("missing assignment operator.");
+                    Console.WriteLine("  Missing assignment operator.");
                 else
                 {
                     string[] sTmp = Regex.Split(curr.Replace(" ", ""), @"\=");
@@ -43,21 +43,16 @@ namespace ComputerV2
                     
                     else
                     {
-                        var sub = Parser.Substitute(sTmp[0], functions, variables);
-                        Console.WriteLine($"  {MyMaths.Calc(sub)}");
+                        if (Parser.Substitute(sTmp[0], functions, variables, "").Success)
+                        {
+                            var sub = Parser.Substitute(sTmp[0], functions, variables, "").Value;
+                            Console.WriteLine($"  {MyMaths.Calc(sub)}");
+                        }
+                        else Console.WriteLine(Parser.Substitute(sTmp[0], functions, variables, "").Message);
+
                     }
                 }
             }
-        }
-        public static int FindVar(List<List<string>> variables, string str)
-        {
-            List<string> cVar = new List<string>();
-            for (var i = 1; i < variables.Count; i++)
-            {
-                cVar = variables[i];
-                if (string.Compare(str.ToLower(), cVar[0].ToLower()) == 0) return (i);
-            }
-            return -1;
         }
     }
 }

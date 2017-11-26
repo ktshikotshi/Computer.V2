@@ -8,6 +8,7 @@ namespace ComputerV2_class
     {
         public static string Calc(string expr)
         {
+            if (Regex.IsMatch(expr, @"[a-zA-Z]+")) return expr;
             string[] arr = Regex.Split(expr, @"(\-)|(\+)|(\/)|(\*)|(\%)|(\^)|(\()|(\))");
             List<string> numbs = new List<string>();
             foreach (var n in arr)

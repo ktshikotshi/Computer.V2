@@ -9,9 +9,12 @@ namespace ComputerV2_class
         {
             var rgx_str = @"([a-zA-Z]+\(([a-zA-Z]+)|(\d+([\.,]\d+)?)\))";
             Regex rgx = new Regex(rgx_str);
+            string fVar = "";
             if (rgx.IsMatch(expr))
             {
-                val = Substitute(val, funcs, vars);
+                fVar = Regex.Split(expr, @"\(|\)")[1];
+                if (Substitute(val, funcs, vars, fVar).Success) val = Substitute(val, funcs, vars, fVar).Value;
+                else return (false, Substitute(val, funcs, vars, fVar).Message, null);
                 val = ManageNaturalForm(val, expr);
                 val = reduce(val, expr);
                 if (AssignFunction(expr, val, ref funcs).Success) return (true, null, AssignFunction(expr, val, ref funcs).Value);
@@ -22,63 +25,72 @@ namespace ComputerV2_class
             rgx = new Regex(rgx_str);
             if (rgx.IsMatch(expr))
             {
-                val = Substitute(val, funcs, vars);
-                if (AssignVariable(expr, val, ref vars).Success) return (true, null, AssignVariable(expr, val, ref vars).Value);
-                else
-                    return (false, AssignVariable(expr, val, ref vars).Message, null);
+                if (expr != "i")
+                {
+                    if (Substitute(val, funcs, vars, fVar).Success) val = Substitute(val, funcs, vars, fVar).Value;
+                    else return (false, Substitute(val, funcs, vars, fVar).Message, null);
+                    if (AssignVariable(expr, val, ref vars).Success) return (true, null, AssignVariable(expr, val, ref vars).Value);
+                    else
+                        return (false, AssignVariable(expr, val, ref vars).Message, null);
+                }
+                return (false, "Variable: i is reserved.", null);
             }
             return (false, "No variable or Function found", null);
         }
 
-        public static string Substitute(string expr, List<List<string>> funcs, List<List<string>> vars)
+        public static (bool Success, string Message, string Value) Substitute(string expr, List<List<string>> funcs, List<List<string>> vars, string fVar)
         {
-            expr = MatchFunction(expr, funcs, vars);
+            var func = MatchFunction(expr, funcs, vars);
+            expr = func.Value;
+            fVar = func.Variable == "" ? fVar : func.Variable;
             expr = MatchVariable(expr, vars);
-            return expr;
+            if (!(Undefined(expr, fVar).Success)) return (false, Undefined(expr, fVar).Message, null);
+            return (true, null, expr);
         }
 
-        private static string MatchFunction(string expr, List<List<string>> funcs, List<List<string>> vars)
+        private static (string Variable, string Value) MatchFunction(string expr, List<List<string>> funcs, List<List<string>> vars)
         {
-            Regex rgx = new Regex(@"(((\-|\+)(\s+)?)?[a-zA-Z]+\((([a-zA-Z]+)|(\d+([\.,]\d+)?))\))", RegexOptions.None);
-            var match = rgx.Match(expr);
-            while (match.Success)
+            Regex rgx = new Regex(@"(((\-|\+)(\s+)?)?[a-zA-Z]+\((([a-zA-Z]+)|(\d+([\.,]\d+)?))\))");
+            var match = rgx.Matches(expr);
+            string fVar = "";
+            for (var i = 0; i < match.Count; i++)
             {
-                string tmp = match.Value;
-                string[] func = Regex.Split(tmp, @"\(|\)");
-                string rplc = "";
-                foreach (var f in funcs)
+                if (match[i].Success)
                 {
-                    if (f[0] == func[0])
+                    string tmp = match[i].Value;
+                    string[] func = Regex.Split(tmp, @"\(|\)");
+                    string rplc = "";
+                    foreach (var f in funcs)
                     {
-                        rplc = f[2];
-                        if (Regex.IsMatch(func[1], @"^[a-zA-Z]+$"))
+                        if (f[0] == func[0])
                         {
-                            foreach (var v in vars)
+                            fVar = func[1];
+                            rplc = f[2];
+                            if (Regex.IsMatch(func[1], @"^[a-zA-Z]+$"))
                             {
-                                if (v[0] == func[1])
+                                foreach (var v in vars)
                                 {
-                                    rplc = rplc.Replace(f[1], $"({v[1]})");
-                                    rplc = MyMaths.Calc(rplc);
-                                    expr = expr.Replace(tmp, rplc);
-                                    break;
+                                    if (v[0] == func[1])
+                                    {
+                                        rplc = rplc.Replace(f[1], $"({v[1]})");
+                                        rplc = MyMaths.Calc(rplc);
+                                        expr = expr.Replace(tmp, rplc);
+                                        break;
+                                    }
                                 }
-                            }
-                            if (rplc == "")
-                            {
                                 expr = expr.Replace(tmp, f[2]);
                             }
-                        }
-                        else
-                        {
-                            rplc = rplc.Replace(f[1], $"({func[1]})");
-                            rplc = MyMaths.Calc(rplc);
-                            expr = expr.Replace(tmp, rplc);   
+                            else
+                            {
+                                rplc = rplc.Replace(f[1], $"({func[1]})");
+                                rplc = MyMaths.Calc(rplc);
+                                expr = expr.Replace(tmp, rplc);
+                            }
                         }
                     }
                 }
-                match = rgx.Match(expr);
             }
-            return expr; 
+            return (fVar, expr); 
         }
         //find the value of the variable
         private static string MatchVariable(string expr, List<List<string>> vars)
@@ -144,6 +156,7 @@ namespace ComputerV2_class
             vars.Add(newVar);
             return (true, null, vars[vars.Count - 1][1]);
         }
+
         private static string ManageNaturalForm(string f, string var)
         {
             string[] expr = Helper.Split(f);
@@ -168,52 +181,35 @@ namespace ComputerV2_class
                 tmp += s;
             return tmp;
         }
+
         private static string reduce(string f, string var)
         {
-            f = reduce_helper1(f);
+            f = Helper.Reduce_helper1(f);
             string[] expr = Helper.Split(f);
             var = Regex.Split(var, @"\(|\)")[1];
             const string pow1 = @"^((\d+)([\.,]\d+)?)?(\*)?[A-Za-z](\^[1])?$";
             const string pow2 = @"^((\d+)([\.,]\d+)?)?(\*)?[A-Za-z]\^[2]$";
             const string pow0 = @"^\d+([\.,]\d+)?$";
             double a = 0, b = 0, c = 0;
-            a = reduce_helper(expr, pow2);
-            b = reduce_helper(expr, pow1);
-            c = reduce_helper(expr, pow0);
+            a = Helper.Reduce_helper(expr, pow2);
+            b = Helper.Reduce_helper(expr, pow1);
+            c = Helper.Reduce_helper(expr, pow0);
             string tmp = "";
             tmp += a != 0 ? (a > 0 ? a.ToString(): " " + a.ToString())  + $"*{var}^2" : "";
             tmp += b != 0 ? (b > 0 ? (tmp == ""? b.ToString() : $" + {b}") : " " + b.ToString()) + $"*{var}" : "";
             tmp += c != 0 ? (c > 0 ? (tmp == "" ? c.ToString() : $" + {c}") : " " + c.ToString()) : "";
             return tmp;
         }
-        private static string reduce_helper1(string f)
+
+        private static (bool Success, string Message) Undefined(string val, string fVar)
         {
-            var rgx = new Regex(@"(((\-|\+)?\d+([\.,]\d+)?)(\/|\%|\*)((\-|\+)?\d+([\.,]\d+)?))");
-            var match = rgx.Match(f);
-            while (match.Success)
-            {
-                var str = Regex.Replace(match.Value, @"(\-|\+)?\d+([\.,]\d+)?", m => string.Format(@"0{0}", m.Value));
-                var tmp = MyMaths.Calc(str);
-                f = f.Replace(match.Value, tmp.Contains("-")? tmp : "+"+tmp);
-                match = rgx.Match(f);
-            }
-            return f;
-        }
-        private static double reduce_helper(string[] value, string rgx)
-        {
-            double ret =0d;
-            var prev = "";
-            foreach (var v in value)
-            {
-                if (Regex.IsMatch(v, rgx))
-                {
-                    double tmp = 0d;
-                    double.TryParse(Regex.Match(prev + v, @"((\+)|(\-))?\d+([\.,]\d+)?").Value, out tmp);
-                    ret += tmp;
-                }
-                prev = v;
-            }
-            return ret;
+            Regex rgx = new Regex(@"(((\-|\+)(\s+)?)?[a-zA-Z]+\((([a-zA-Z]+)|(\d+([\.,]\d+)?))\))", RegexOptions.None);
+            var match = rgx.Match(val);
+            if (match.Success) return (false, $"  Function : {match.Value} is not defined.");
+            rgx = new Regex(@"[A-Za-z]+", RegexOptions.None);
+            match = rgx.Match(val);
+            if (match.Success && match.Value != fVar && match.Value != "i") return (false, $"  Variable : {match.Value} is not defined.");
+            return (true, null);
         }
     }
 }
