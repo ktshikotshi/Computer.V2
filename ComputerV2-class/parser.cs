@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using ComputerV2_class.Properties;
 
 namespace ComputerV2_class
 {
@@ -219,6 +220,7 @@ namespace ComputerV2_class
         {
             int braces = 0;
             if (!expr.Contains("[")) return (false, null, expr);
+            
             if (expr.Contains("*"))
             {
                 Console.WriteLine("Multiplication");
@@ -241,6 +243,7 @@ namespace ComputerV2_class
                 else
                     return (false, $"format of matric is not correct:  {nExpr[i]}", null);
             }
+            Matrix thisM = new Matrix(expr);
             return (true, null, expr);;
         }
     }
