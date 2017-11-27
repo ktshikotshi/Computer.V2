@@ -16,11 +16,10 @@ namespace ComputerV2
             //stores all the functions and their values.
             List<List<string>> functions = new List<List<string>>();
       
-            var curr = "";
+            Console.Write("> ");
+            var curr = Console.ReadLine().ToLower();
             while (curr.ToLower() != "quite")
             {
-                Console.Write("> ");
-                curr = Console.ReadLine().ToLower();
                 if (curr == "--v")
                    foreach(var v in variables)
                         Console.WriteLine($"{v[0]} = {v[1]}");
@@ -52,6 +51,8 @@ namespace ComputerV2
 
                     }
                 }
+                Console.Write("> ");
+                curr = Console.ReadLine().ToLower();
             }
         }
     }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 namespace ComputerV2_class
@@ -7,9 +8,11 @@ namespace ComputerV2_class
     {
         public static (bool Success, string Message, string Value) Assign(string expr, string val, ref List<List<string>> vars, ref List<List<string>> funcs)
         {
-            var rgx_str = @"([a-zA-Z]+\(([a-zA-Z]+)|(\d+([\.,]\d+)?)\))";
-            Regex rgx = new Regex(rgx_str);
+            var rgxStr = @"([a-zA-Z]+\(([a-zA-Z]+)|(\d+([\.,]\d+)?)\))";
+            Regex rgx = new Regex(rgxStr);
             string fVar = "";
+            if (matrix(val).Found || (!matrix(val).Found && matrix(val).Message == null)) val = matrix(val).Value;
+            else return (false, matrix(val).Message, null);
             if (rgx.IsMatch(expr))
             {
                 fVar = Regex.Split(expr, @"\(|\)")[1];
@@ -21,8 +24,8 @@ namespace ComputerV2_class
                 else
                     return (false, AssignFunction(expr, val, ref funcs).Message, null);
             }
-            rgx_str = @"[a-zA-Z]+";
-            rgx = new Regex(rgx_str);
+            rgxStr = @"[a-zA-Z]+";
+            rgx = new Regex(rgxStr);
             if (rgx.IsMatch(expr))
             {
                 if (expr != "i")
@@ -126,8 +129,7 @@ namespace ComputerV2_class
             {
                 if (funcs[i][0] == func[0])
                 {
-                    if (funcs[i][1] != func[1])
-                        funcs[i][1] = func[1];
+                    funcs[i][1] = func[1];
                     funcs[i][2] = value;
                     return (true, null, funcs[i][2]);
                 }
@@ -201,7 +203,7 @@ namespace ComputerV2_class
             tmp += c != 0 ? (c > 0 ? (tmp == "" ? c.ToString() : $" + {c}") : " " + c.ToString()) : "";
             return tmp;
         }
-
+        
         private static (bool Success, string Message) Undefined(string val, string fVar)
         {
             Regex rgx = new Regex(@"(((\-|\+)(\s+)?)?[a-zA-Z]+\((([a-zA-Z]+)|(\d+([\.,]\d+)?))\))", RegexOptions.None);
@@ -211,6 +213,35 @@ namespace ComputerV2_class
             match = rgx.Match(val);
             if (match.Success && match.Value != fVar && match.Value != "i") return (false, $"  Variable : {match.Value} is not defined.");
             return (true, null);
+        }
+
+        private static (bool Found, string Message, string Value) matrix(string expr)
+        {
+            int braces = 0;
+            if (!expr.Contains("[")) return (false, null, expr);
+            if (expr.Contains("*"))
+            {
+                Console.WriteLine("Multiplication");
+                return (false, null, expr);
+            }
+            for (var i = 0; i < expr.Length; i++)
+            {
+                if (expr[i] == '[') braces += 1;
+                if (expr[i] == ']') braces -= 1;
+            }
+            if (braces != 0) return (false, $"format of matric is not correct:  {expr}", null);
+            expr = Regex.Replace(expr, @"\[|\]", "");
+            var nExpr = expr.Split(';');
+            expr = "";
+            for (var i = 0; i < nExpr.Length; i++)
+            {
+                nExpr[i] = $"[{nExpr[i]}]";
+                if (Regex.IsMatch(nExpr[i], @"^\[((\d+([\.,]\d+)?)?([,])?)+\]$"))
+                    expr += $"{nExpr[i]}\n";
+                else
+                    return (false, $"format of matric is not correct:  {nExpr[i]}", null);
+            }
+            return (true, null, expr);;
         }
     }
 }

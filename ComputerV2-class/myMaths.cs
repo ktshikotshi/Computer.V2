@@ -99,23 +99,26 @@ namespace ComputerV2_class
             {
                 if (numbs[i] == "/")
                 {
-                    var n = Convert.ToDouble(numbs[i - 1]) / Convert.ToDouble(numbs[i + 1]);
+                    var n = Convert.ToDouble(numbs[i - 1]) / Convert.ToDouble(numbs[i + 1] == "-"? $"-{numbs[i + 2]}" : (numbs[i + 1] == "+"? numbs[i + 2] : numbs[i + 1]));
                     numbs[i - 1] = n.ToString();
-                    numbs.RemoveRange(i, 2);
+                    if (numbs[i + 1] == "+" || numbs[i + 1] == "-") numbs.RemoveRange(i, 3);
+                    else numbs.RemoveRange(i, 2);
                     i = 0;
                 }
                 else if (numbs[i] == "*")
                 {
-                    var n = Convert.ToDouble(numbs[i - 1]) * Convert.ToDouble(numbs[i + 1]);
+                    var n = Convert.ToDouble(numbs[i - 1]) * Convert.ToDouble(numbs[i + 1] == "-"? $"-{numbs[i + 2]}" : (numbs[i + 1] == "+"? numbs[i + 2] : numbs[i + 1]));
                     numbs[i - 1] = n.ToString();
-                    numbs.RemoveRange(i, 2);
+                    if (numbs[i + 1] == "+" || numbs[i + 1] == "-") numbs.RemoveRange(i, 3);
+                    else numbs.RemoveRange(i, 2);
                     i = 0;
                 }
                 else if (numbs[i] == "%")
                 {
-                    var n = Convert.ToDouble(numbs[i - 1]) % Convert.ToDouble(numbs[i + 1]);
+                    var n = Convert.ToDouble(numbs[i - 1]) % Convert.ToDouble(numbs[i + 1] == "-"? $"-{numbs[i + 2]}" : (numbs[i + 1] == "+"? numbs[i + 2] : numbs[i + 1]));
                     numbs[i - 1] = n.ToString();
-                    numbs.RemoveRange(i, 2);
+                    if (numbs[i + 1] == "+" || numbs[i + 1] == "-") numbs.RemoveRange(i, 3);
+                    else numbs.RemoveRange(i, 2);
                     i = 0;
                 }
             }
