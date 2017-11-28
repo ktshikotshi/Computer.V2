@@ -55,26 +55,38 @@ namespace ComputerV2_class.Properties
             }
             return ret;
         }
-
+           
+        /*
+         * 1 2 3  | 1 2 3  |  1 * 1 + 2 * 4 + 3 * 7 , 1 * 2 + 2 * 5 + 3 * 8 , 1 * 3 + 2 * 6 + 3 * 9  
+         * 4 5 6  | 4 5 6  |  4 * 1 + 5 * 4 + 6 * 7 , 4 * 2 + 5 * 5 + 6 * 8 , 4 * 3 + 5 * 6 + 6 * 9
+         * 7 8 9  | 7 8 9  |  7 * 1 + 8 * 4 + 9 * 7 , 7 * 2 + 8 * 5 + 9 * 8 , 7 * 3 + 8 * 6 + 9 * 9
+         */
+        
         public static (bool Success, string Message, string Value) Multiply(Matrix m1, Matrix m2)
         {
 
             var ret = "";
-            
+            int rowCounter = 0, columnCounter = 0;
             if (m1.Dimentions.Columns != m2.Dimentions.Rows) return (true, "Matrics cannot be multiplied", ret);
-            var newMatrix = new string[m1.Dimentions.Columns, m2.Dimentions.Rows];
-            var count = 0;
-            var count1 = 0;
-            var str = "";
-            for (var j = 0; j < m1.Dimentions.Rows; j++) {
-                for (var i = 0; i < m1.Dimentions.Columns; i++)
-                {
-                    if (count < m2.Dimentions.Rows)
+            for (var i = 0; i < m1.Dimentions.Columns; i++)
+            {
+
+                    while (rowCounter < m1.Dimentions.Rows)
                     {
-                        str += 
-                        count++;
+                        //to be continued
+                        Console.Write(
+                            $" {(rowCounter > 0 ? "+" : "")} {m1.IntMatrix[i, rowCounter]} * {m2.IntMatrix[rowCounter, columnCounter]}");
+                        rowCounter++;
+                        if (rowCounter == m1.Dimentions.Rows && columnCounter < m2.Dimentions.Columns - 1)
+                        {
+                            rowCounter = 0;
+                            columnCounter++;
+                        }
                     }
-                }
+                rowCounter = 0;
+                columnCounter = 0;
+                Console.WriteLine();
+                //a = [[1,2,3];[4,5,6];[7,8,9]]
             }
             return (true, null, ret);
         }

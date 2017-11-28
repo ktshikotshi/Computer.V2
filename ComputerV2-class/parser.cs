@@ -244,6 +244,9 @@ namespace ComputerV2_class
                     return (false, $"format of matric is not correct:  {nExpr[i]}", null);
             }
             Matrix thisM = new Matrix(expr);
+            Matrix this2 = new Matrix(expr);
+            //test matrix
+            Matrix.Multiply(thisM, this2);
             return (true, null, expr);;
         }
     }
