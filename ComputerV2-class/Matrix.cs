@@ -18,16 +18,16 @@ namespace ComputerV2_class.Properties
         public Matrix(string expr)
         {
             expr = Regex.Replace(expr, @"\[|\]", "");
-            MyMatrix = expr.Split('\n');
-            if (MyMatrix.Length > 1)
+            var tmp = expr.Split('\n');
+            if (tmp.Length > 1)
             {
-                _dimentions.Rows = MyMatrix.Length - 1;
-                var m = MyMatrix[0].Split(',');
+                _dimentions.Rows = tmp.Length - 1;
+                var m = tmp[0].Split(',');
                 _dimentions.Columns = m.Length;
             }
             IntMatrix = new Double[_dimentions.Rows, _dimentions.Columns];
             for (var j = 0; j < _dimentions.Columns; j++) {
-                var rw = MyMatrix[j].Split(',');
+                var rw = tmp[j].Split(',');
                 for (var i = 0; i < _dimentions.Rows; i++)
                     IntMatrix[j, i] = Convert.ToDouble(rw[i]);
             }
@@ -55,12 +55,6 @@ namespace ComputerV2_class.Properties
             }
             return ret;
         }
-           
-        /*
-         * 1 2 3  | 1 2 3  |  1 * 1 + 2 * 4 + 3 * 7 , 1 * 2 + 2 * 5 + 3 * 8 , 1 * 3 + 2 * 6 + 3 * 9  
-         * 4 5 6  | 4 5 6  |  4 * 1 + 5 * 4 + 6 * 7 , 4 * 2 + 5 * 5 + 6 * 8 , 4 * 3 + 5 * 6 + 6 * 9
-         * 7 8 9  | 7 8 9  |  7 * 1 + 8 * 4 + 9 * 7 , 7 * 2 + 8 * 5 + 9 * 8 , 7 * 3 + 8 * 6 + 9 * 9
-         */
         
         public static (bool Success, string Message, string Value) Multiply(Matrix m1, Matrix m2)
         {
@@ -73,13 +67,11 @@ namespace ComputerV2_class.Properties
 
                     while (rowCounter < m1.Dimentions.Rows)
                     {
-                        //to be continued
-                        ret += (
-                            $" {(rowCounter > 0 ? "+" : "")} {m1.IntMatrix[i, rowCounter]} * {m2.IntMatrix[rowCounter, columnCounter]}");
+                        ret += $" {(rowCounter > 0 ? "+" : "")} {m1.IntMatrix[i, rowCounter]} * {m2.IntMatrix[rowCounter, columnCounter]}";
                         rowCounter++;
                         if (rowCounter == m1.Dimentions.Rows && columnCounter < m2.Dimentions.Columns - 1)
                         {
-                            ret += (";");
+                            ret += (",");
                             rowCounter = 0;
                             columnCounter++;
                         }
@@ -87,10 +79,33 @@ namespace ComputerV2_class.Properties
                 rowCounter = 0;
                 columnCounter = 0;
                 ret += "\n";
-                //a = [[1,2,3];[4,5,6];[7,8,9]]
             }
-            
+            ret = CalcMatrix(ret, m1.Dimentions.Rows, m2.Dimentions.Columns);
             return (true, null, ret);
+        }
+
+        private static string CalcMatrix(string met ,int rows, int columns)
+        {
+            var ret = "";
+            var tmp = met.Split('\n');
+            
+            var tmp2 = new string[rows, columns];
+            for (var j = 0; j < columns; j++) {
+                var rw = tmp[j].Split(',');
+                for (var i = 0; i < rows; i++)
+                    tmp2[j, i] = MyMaths.Calc(rw[i]);
+            }
+            for(var i = 0; i < columns; i++)
+            {
+                ret += "[";
+                for (var j = 0; j < rows; j++)
+                {
+                    ret += $"{(j > 0? ",": "")}{tmp2[i,j]}";
+                }
+                ret += "]\n";
+            }
+            Console.WriteLine(ret);
+            return ret;
         }
     }
 }
