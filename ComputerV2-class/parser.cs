@@ -12,8 +12,9 @@ namespace ComputerV2_class
             var rgxStr = @"([a-zA-Z]+\(([a-zA-Z]+)|(\d+([\.,]\d+)?)\))";
             Regex rgx = new Regex(rgxStr);
             string fVar = "";
-            if (matrix(val).Found || (!matrix(val).Found && matrix(val).Message == null)) val = matrix(val).Value;
-            else return (false, matrix(val).Message, null);
+            var mx = matrix(val);
+            if (mx.Found || (!mx.Found && mx.Message == null)) val = mx.Value;
+            else return (false, mx.Message, null);
             if (rgx.IsMatch(expr))
             {
                 fVar = Regex.Split(expr, @"\(|\)")[1];

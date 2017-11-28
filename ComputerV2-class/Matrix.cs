@@ -74,20 +74,22 @@ namespace ComputerV2_class.Properties
                     while (rowCounter < m1.Dimentions.Rows)
                     {
                         //to be continued
-                        Console.Write(
+                        ret += (
                             $" {(rowCounter > 0 ? "+" : "")} {m1.IntMatrix[i, rowCounter]} * {m2.IntMatrix[rowCounter, columnCounter]}");
                         rowCounter++;
                         if (rowCounter == m1.Dimentions.Rows && columnCounter < m2.Dimentions.Columns - 1)
                         {
+                            ret += (";");
                             rowCounter = 0;
                             columnCounter++;
                         }
                     }
                 rowCounter = 0;
                 columnCounter = 0;
-                Console.WriteLine();
+                ret += "\n";
                 //a = [[1,2,3];[4,5,6];[7,8,9]]
             }
+            
             return (true, null, ret);
         }
     }
