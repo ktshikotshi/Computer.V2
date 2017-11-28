@@ -61,7 +61,7 @@ namespace ComputerV2_class.Properties
 
             var ret = "";
             int rowCounter = 0, columnCounter = 0;
-            if (m1.Dimentions.Columns != m2.Dimentions.Rows) return (true, "Matrics cannot be multiplied", ret);
+            if (m1.Dimentions.Columns != m2.Dimentions.Rows) return (false, "Matrics cannot be multiplied", ret);
             for (var i = 0; i < m1.Dimentions.Columns; i++)
             {
 
@@ -104,7 +104,6 @@ namespace ComputerV2_class.Properties
                 }
                 ret += "]\n";
             }
-            Console.WriteLine(ret);
             return ret;
         }
     }

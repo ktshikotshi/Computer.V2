@@ -12,9 +12,6 @@ namespace ComputerV2_class
             var rgxStr = @"([a-zA-Z]+\(([a-zA-Z]+)|(\d+([\.,]\d+)?)\))";
             Regex rgx = new Regex(rgxStr);
             string fVar = "";
-            var mx = matrix(val);
-            if (mx.Found || (!mx.Found && mx.Message == null)) val = mx.Value;
-            else return (false, mx.Message, null);
             if (rgx.IsMatch(expr))
             {
                 fVar = Regex.Split(expr, @"\(|\)")[1];
@@ -34,6 +31,9 @@ namespace ComputerV2_class
                 {
                     if (Substitute(val, funcs, vars, fVar).Success) val = Substitute(val, funcs, vars, fVar).Value;
                     else return (false, Substitute(val, funcs, vars, fVar).Message, null);
+                    var mx = matrix(val);
+                    if (mx.Found || (!mx.Found && mx.Message == null)) val = mx.Value;
+                    else return (false, mx.Message, null);
                     if (AssignVariable(expr, val, ref vars).Success) return (true, null, AssignVariable(expr, val, ref vars).Value);
                     else
                         return (false, AssignVariable(expr, val, ref vars).Message, null);
@@ -219,14 +219,39 @@ namespace ComputerV2_class
 
         private static (bool Found, string Message, string Value) matrix(string expr)
         {
-            int braces = 0;
             if (!expr.Contains("[")) return (false, null, expr);
             
-            if (expr.Contains("*"))
+            if (expr.Contains("**"))
             {
-                Console.WriteLine("Multiplication");
-                return (false, null, expr);
+                var tmp = expr.Split('*');
+                //return (false, null, expr);
+
+                if (SplitMatrix(tmp[0]).Valid && SplitMatrix(tmp[tmp.Length - 1]).Valid)
+                {
+                    Matrix thisM = new Matrix(SplitMatrix(tmp[0]).Value);
+                    Matrix this2 = new Matrix(SplitMatrix(tmp[tmp.Length - 1]).Value);
+                    var mlty = Matrix.Multiply(thisM, this2);
+                    if (mlty.Success)
+                        expr = mlty.Value;
+                    else
+                    {
+                        return (false, mlty.Message, null);
+                    }
+                    return (true, null, expr);
+                }
+                else
+                    return (false, (SplitMatrix(tmp[0]).Valid
+                        ? SplitMatrix(tmp[1]).Message
+                        : SplitMatrix(tmp[0]).Message), null);
             }
+            return (SplitMatrix(expr).Valid, SplitMatrix(expr).Message, SplitMatrix(expr).Value);
+
+        }
+
+        private static (bool Valid, string Message, string Value) SplitMatrix(string expr)
+        {
+            int braces = 0;
+            
             for (var i = 0; i < expr.Length; i++)
             {
                 if (expr[i] == '[') braces += 1;
@@ -234,21 +259,18 @@ namespace ComputerV2_class
             }
             if (braces != 0) return (false, $"format of matric is not correct:  {expr}", null);
             expr = Regex.Replace(expr, @"\[|\]", "");
-            var nExpr = expr.Split(';');
+            var nExpr = Regex.Split(expr, @"[\n]|[;]");
             expr = "";
             for (var i = 0; i < nExpr.Length; i++)
             {
-                nExpr[i] = $"[{nExpr[i]}]";
-                if (Regex.IsMatch(nExpr[i], @"^\[((\d+([\.,]\d+)?)?([,])?)+\]$"))
-                    expr += $"{nExpr[i]}\n";
+                
+                nExpr[i] = nExpr[i] == "" ? "" : $"[{nExpr[i]}]";
+                if (Regex.IsMatch(nExpr[i], @"^\[(((\-)?\d+([\.,]\d+)?)?([,])?)+\]$") || nExpr[i] == "")
+                    expr += nExpr[i] == ""? "" : $"{nExpr[i]}\n";
                 else
                     return (false, $"format of matric is not correct:  {nExpr[i]}", null);
             }
-            Matrix thisM = new Matrix(expr);
-            Matrix this2 = new Matrix(expr);
-            //test matrix
-            Matrix.Multiply(thisM, this2);
-            return (true, null, expr);;
+            return (true, null, expr);
         }
     }
 }

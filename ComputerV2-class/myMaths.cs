@@ -16,6 +16,7 @@ namespace ComputerV2_class
                 if (n != "" && n != " ")
                     numbs.Add(n);
             }
+            
             Brackets(ref numbs);
             Power(ref numbs);
             MultDiv(ref numbs);

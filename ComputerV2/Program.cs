@@ -27,7 +27,7 @@ namespace ComputerV2
                     foreach(var f in functions)
                         Console.WriteLine($"{f[0]}({f[1]}) = {f[2]}");
                 else if (!(curr.Contains("=")))
-                    Console.WriteLine("  Missing assignment operator.");
+                    Console.WriteLine("Missing assignment operator.");
                 else
                 {
                     string[] sTmp = Regex.Split(curr.Replace(" ", ""), @"\=");
@@ -36,7 +36,7 @@ namespace ComputerV2
                     {
                         var parse = Parser.Assign(sTmp[0], sTmp[1], ref variables, ref functions);
                         if (!(parse.Success)) Console.WriteLine(parse.Message);
-                        else Console.WriteLine($"  {parse.Value}");
+                        else Console.WriteLine($"{parse.Value}");
                     }
                     //resolution
                     
@@ -45,7 +45,7 @@ namespace ComputerV2
                         if (Parser.Substitute(sTmp[0], functions, variables, "").Success)
                         {
                             var sub = Parser.Substitute(sTmp[0], functions, variables, "").Value;
-                            Console.WriteLine($"  {MyMaths.Calc(sub)}");
+                            Console.WriteLine($"{MyMaths.Calc(sub)}");
                         }
                         else Console.WriteLine(Parser.Substitute(sTmp[0], functions, variables, "").Message);
 
