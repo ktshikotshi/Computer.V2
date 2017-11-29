@@ -9,6 +9,9 @@ namespace ComputerV2_class
         public static string Calc(string expr)
         {
             if (Regex.IsMatch(expr, @"[a-zA-Z]+")) return expr;
+            var mx =Parser.MatrixManipulation(expr);
+            if (mx.Found) return (mx.Value);
+            if (!mx.Found && mx.Message != null) return (mx.Message);
             string[] arr = Regex.Split(expr, @"(\-)|(\+)|(\/)|(\*)|(\%)|(\^)|(\()|(\))");
             List<string> numbs = new List<string>();
             foreach (var n in arr)
@@ -16,7 +19,8 @@ namespace ComputerV2_class
                 if (n != "" && n != " ")
                     numbs.Add(n);
             }
-            
+            if (numbs.Count == 0)
+                return expr;
             Brackets(ref numbs);
             Power(ref numbs);
             MultDiv(ref numbs);
@@ -24,14 +28,14 @@ namespace ComputerV2_class
             {
                 if (numbs[i] == "+" )
                 {
-                    var n = Convert.ToDouble(numbs[i - 1]) + Convert.ToDouble(numbs[i + 1]);
+                    var n = Convert.ToDouble(numbs[i - 1]) + Convert.ToDouble(Convert.ToDouble(numbs[i + 1] == "-" ? $"-{numbs[i + 2]}" : (numbs[i + 1] == "+" ? numbs[i + 2] : numbs[i + 1])));
                     numbs[i - 1] = n.ToString();
                     numbs.RemoveRange(i, 2);
                     i = 0;
                 }
                 else if (numbs[i] == "-")
                 {
-                    var n = Convert.ToDouble(numbs[i - 1]) - Convert.ToDouble(numbs[i + 1]);
+                    var n = Convert.ToDouble(numbs[i - 1]) - Convert.ToDouble(Convert.ToDouble(numbs[i + 1] == "-" ? $"-{numbs[i + 2]}" : (numbs[i + 1] == "+" ? numbs[i + 2] : numbs[i + 1])));
                     numbs[i - 1] = n.ToString();
                     numbs.RemoveRange(i, 2);
                     i = 0;

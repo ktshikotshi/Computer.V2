@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 namespace ComputerV2_class
@@ -15,11 +16,15 @@ namespace ComputerV2_class
                 fVar = Regex.Split(expr, @"\(|\)")[1];
                 if (Substitute(val, funcs, vars, fVar).Success) val = Substitute(val, funcs, vars, fVar).Value;
                 else return (false, Substitute(val, funcs, vars, fVar).Message, null);
+                var mx = MatrixManipulation(val);
+                if (mx.Found || (!mx.Found && mx.Message == null)) val = mx.Value;
+                else return (false, mx.Message, null);
                 val = ManageNaturalForm(val, expr);
                 val = Reduce(val, expr);
-                if (AssignFunction(expr, val, ref funcs).Success) return (true, null, AssignFunction(expr, val, ref funcs).Value);
+                var Ass = AssignFunction(expr, val, ref funcs);
+                if (Ass.Success) return (true, null, Ass.Value);
                 else
-                    return (false, AssignFunction(expr, val, ref funcs).Message, null);
+                    return (false, Ass.Message, null);
             }
             rgxStr = @"[a-zA-Z]+";
             rgx = new Regex(rgxStr);
@@ -29,12 +34,13 @@ namespace ComputerV2_class
                 {
                     if (Substitute(val, funcs, vars, fVar).Success) val = Substitute(val, funcs, vars, fVar).Value;
                     else return (false, Substitute(val, funcs, vars, fVar).Message, null);
-                    var mx = Matrix(val);
+                    var mx = MatrixManipulation(val);
                     if (mx.Found || (!mx.Found && mx.Message == null)) val = mx.Value;
                     else return (false, mx.Message, null);
-                    if (AssignVariable(expr, val, ref vars).Success) return (true, null, AssignVariable(expr, val, ref vars).Value);
+                    var Ass = AssignVariable(expr, val, ref vars);
+                    if (Ass.Success) return (true, null, Ass.Value);
                     else
-                        return (false, AssignVariable(expr, val, ref vars).Message, null);
+                        return (false, Ass.Message, null);
                 }
                 return (false, "Variable: i is reserved.", null);
             }
@@ -219,34 +225,45 @@ namespace ComputerV2_class
             return (true, null);
         }
 
-        private static (bool Found, string Message, string Value) Matrix(string expr)
+        public static (bool Found, string Message, string Value) MatrixManipulation(string expr)
         {
             if (!expr.Contains("[")) return (false, null, expr);
-            
-            if (expr.Contains("**"))
+            if (expr.Contains("*"))
             {
                 var tmp = expr.Split('*');
-                //return (false, null, expr);
-
-                if (SplitMatrix(tmp[0]).Valid && SplitMatrix(tmp[tmp.Length - 1]).Valid)
+                if (expr.Contains("**"))
                 {
-                    Matrix thisM = new Matrix(SplitMatrix(tmp[0]).Value);
-                    Matrix this2 = new Matrix(SplitMatrix(tmp[tmp.Length - 1]).Value);
-                    var mlty = ComputerV2_class.Matrix.Multiply(thisM, this2);
-                    if (mlty.Success)
-                        expr = mlty.Value;
-                    else
+                    if (SplitMatrix(tmp[0]).Valid && SplitMatrix(tmp[tmp.Length - 1]).Valid)
                     {
-                        return (false, mlty.Message, null);
+                        Matrix thisM = new Matrix(SplitMatrix(tmp[0]).Value);
+                        Matrix this2 = new Matrix(SplitMatrix(tmp[tmp.Length - 1]).Value);
+                        var mlty = Matrix.Multiply(thisM, this2);
+                        if (mlty.Success)
+                            expr = mlty.Value;
+                        else
+                        {
+                            return (false, mlty.Message, null);
+                        }
+                        return (true, null, expr);
                     }
-                    return (true, null, expr);
+                    else
+                        return (false, (SplitMatrix(tmp[0]).Valid
+                            ? SplitMatrix(tmp[1]).Message
+                            : SplitMatrix(tmp[0]).Message), null);
                 }
-                else
-                    return (false, (SplitMatrix(tmp[0]).Valid
-                        ? SplitMatrix(tmp[1]).Message
-                        : SplitMatrix(tmp[0]).Message), null);
-            }
-            return (SplitMatrix(expr).Valid, SplitMatrix(expr).Message, SplitMatrix(expr).Value);
+                try
+                {
+                    var scalar = tmp[0].Contains(",") ? Decimal.Parse(tmp[tmp.Length - 1]) : Decimal.Parse(tmp[0]);
+                    var mtrxVal = tmp[0].Contains(",") ? SplitMatrix(tmp[0]).Value : SplitMatrix(tmp[tmp.Length - 1]).Value;
+                    var mtrx = new Matrix(mtrxVal);
+                    expr = Matrix.ScalarMultiply(scalar.ToString(), mtrx);
+                }
+                catch (FormatException e) { return (false, "No Scalar value found in expression", null); }
+
+                return (true, null, expr);
+                }
+            var split = SplitMatrix(expr);
+            return (split.Valid, split.Message, split.Value);
 
         }
 

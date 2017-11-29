@@ -16,6 +16,7 @@ namespace ComputerV2_class
         {
             expr = Regex.Replace(expr, @"\[|\]", "");
             var tmp = expr.Split('\n');
+            MyMatrix = tmp;
             if (tmp.Length > 1)
             {
                 _dimentions.Rows = tmp.Length - 1;
@@ -23,9 +24,9 @@ namespace ComputerV2_class
                 _dimentions.Columns = m.Length;
             }
             IntMatrix = new Double[_dimentions.Rows, _dimentions.Columns];
-            for (var j = 0; j < _dimentions.Columns; j++) {
+            for (var j = 0; j < _dimentions.Rows; j++) {
                 var rw = tmp[j].Split(',');
-                for (var i = 0; i < _dimentions.Rows; i++)
+                for (var i = 0; i < _dimentions.Columns; i++)
                     IntMatrix[j, i] = Convert.ToDouble(rw[i]);
             }
 
@@ -41,14 +42,15 @@ namespace ComputerV2_class
             {
                 mat[i] = Regex.Replace(mat[i], @"\[|\]", "");
                 var m = mat[i].Split(',');
-                for (var j = 0; j < m.Length; j++) m[j] = MyMaths.Calc($"{scal} * {m[j]}");
+                for (var j = 0; j < m.Length; j++) m[j] = m[j] == "" ? "" : MyMaths.Calc($"{scal} * {m[j]}");
                 for (var k = 0; k < m.Length; k++)
                     ret += k + 1 == m.Length ? m[k] : $"{m[k]},";
+                mat[i] = ret;
                 ret = "";
             }
             foreach (var m in mat)
             {
-                ret += $"[{m}]\n";
+                ret += m != ""?$"[{m}]\n":"";
             }
             return ret;
         }
@@ -59,19 +61,21 @@ namespace ComputerV2_class
             var ret = "";
             int rowCounter = 0, columnCounter = 0;
             if (m1.Dimentions.Columns != m2.Dimentions.Rows) return (false, "Matrics cannot be multiplied", ret);
-            for (var i = 0; i < m1.Dimentions.Columns; i++)
+            for (var i = 0; i < m1.Dimentions.Rows; i++)
             {
 
-                    while (rowCounter < m1.Dimentions.Rows)
+                    while (rowCounter < m1.Dimentions.Columns)
                     {
                         ret += $" {(rowCounter > 0 ? "+" : "")} {m1.IntMatrix[i, rowCounter]} * {m2.IntMatrix[rowCounter, columnCounter]}";
                         rowCounter++;
-                        if (rowCounter == m1.Dimentions.Rows && columnCounter < m2.Dimentions.Columns - 1)
+                        if (rowCounter == m1.Dimentions.Columns && columnCounter < m2.Dimentions.Rows)
                         {
                             ret += (",");
                             rowCounter = 0;
                             columnCounter++;
                         }
+                    if (columnCounter == m2.Dimentions.Columns)
+                        break;
                     }
                 rowCounter = 0;
                 columnCounter = 0;
@@ -80,6 +84,10 @@ namespace ComputerV2_class
             ret = CalcMatrix(ret, m1.Dimentions.Rows, m2.Dimentions.Columns);
             return (true, null, ret);
         }
+        /*
+         * a = [[0,3,5];[5,5,2]]
+         * b = [[3,4];[3, -2];[4, -2]]
+         */
 
         private static string CalcMatrix(string met ,int rows, int columns)
         {
@@ -90,6 +98,7 @@ namespace ComputerV2_class
             for (var j = 0; j < columns; j++) {
                 var rw = tmp[j].Split(',');
                 for (var i = 0; i < rows; i++)
+                    if (rw.Length > 1)
                     tmp2[j, i] = MyMaths.Calc(rw[i]);
             }
             for(var i = 0; i < columns; i++)

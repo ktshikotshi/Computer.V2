@@ -42,10 +42,11 @@ namespace ComputerV2
                     
                     else
                     {
-                        if (Parser.Substitute(sTmp[0], functions, variables, "").Success)
+                        var sub = Parser.Substitute(sTmp[0], functions, variables, "");
+                        if (sub.Success)
                         {
-                            var sub = Parser.Substitute(sTmp[0], functions, variables, "").Value;
-                            Console.WriteLine($"{MyMaths.Calc(sub)}");
+                            
+                            Console.WriteLine($"{MyMaths.Calc(sub.Value)}");
                         }
                         else Console.WriteLine(Parser.Substitute(sTmp[0], functions, variables, "").Message);
 
