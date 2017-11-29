@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using ComputerV2_class.Properties;
 
 namespace ComputerV2_class
 {
@@ -18,7 +16,7 @@ namespace ComputerV2_class
                 if (Substitute(val, funcs, vars, fVar).Success) val = Substitute(val, funcs, vars, fVar).Value;
                 else return (false, Substitute(val, funcs, vars, fVar).Message, null);
                 val = ManageNaturalForm(val, expr);
-                val = reduce(val, expr);
+                val = Reduce(val, expr);
                 if (AssignFunction(expr, val, ref funcs).Success) return (true, null, AssignFunction(expr, val, ref funcs).Value);
                 else
                     return (false, AssignFunction(expr, val, ref funcs).Message, null);
@@ -31,7 +29,7 @@ namespace ComputerV2_class
                 {
                     if (Substitute(val, funcs, vars, fVar).Success) val = Substitute(val, funcs, vars, fVar).Value;
                     else return (false, Substitute(val, funcs, vars, fVar).Message, null);
-                    var mx = matrix(val);
+                    var mx = Matrix(val);
                     if (mx.Found || (!mx.Found && mx.Message == null)) val = mx.Value;
                     else return (false, mx.Message, null);
                     if (AssignVariable(expr, val, ref vars).Success) return (true, null, AssignVariable(expr, val, ref vars).Value);
@@ -136,10 +134,12 @@ namespace ComputerV2_class
                     return (true, null, funcs[i][2]);
                 }
             }
-            var newFunc = new List<string>();
-            newFunc.Add(func[0]);
-            newFunc.Add(func[1]);
-            newFunc.Add(value);
+            var newFunc = new List<string>
+            {
+                func[0],
+                func[1],
+                value
+            };
             funcs.Add(newFunc);
             return (true, null, funcs[funcs.Count - 1][2]);
         }
@@ -154,9 +154,11 @@ namespace ComputerV2_class
                     return (true, null, vars[i][1]);
                 }
             }
-            var newVar = new List<string>();
-            newVar.Add(expr);
-            newVar.Add(value);
+            var newVar = new List<string>
+            {
+                expr,
+                value
+            };
             vars.Add(newVar);
             return (true, null, vars[vars.Count - 1][1]);
         }
@@ -187,7 +189,7 @@ namespace ComputerV2_class
             return tmp;
         }
 
-        private static string reduce(string f, string var)
+        private static string Reduce(string f, string var)
         {
             f = Helper.Reduce_helper1(f);
             string[] expr = Helper.Split(f);
@@ -217,7 +219,7 @@ namespace ComputerV2_class
             return (true, null);
         }
 
-        private static (bool Found, string Message, string Value) matrix(string expr)
+        private static (bool Found, string Message, string Value) Matrix(string expr)
         {
             if (!expr.Contains("[")) return (false, null, expr);
             
@@ -230,7 +232,7 @@ namespace ComputerV2_class
                 {
                     Matrix thisM = new Matrix(SplitMatrix(tmp[0]).Value);
                     Matrix this2 = new Matrix(SplitMatrix(tmp[tmp.Length - 1]).Value);
-                    var mlty = Matrix.Multiply(thisM, this2);
+                    var mlty = ComputerV2_class.Matrix.Multiply(thisM, this2);
                     if (mlty.Success)
                         expr = mlty.Value;
                     else

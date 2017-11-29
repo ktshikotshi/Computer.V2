@@ -2,7 +2,7 @@
 using System.Text.RegularExpressions;
 using System.Threading;
 
-namespace ComputerV2_class.Properties
+namespace ComputerV2_class
 {
     public class Matrix
     {
@@ -10,10 +10,7 @@ namespace ComputerV2_class.Properties
         public string[] MyMatrix { get; }
         public double[,] IntMatrix { get; }
 
-        public (int Columns, int Rows) Dimentions
-        {
-            get { return _dimentions; }
-        }
+        public (int Columns, int Rows) Dimentions => _dimentions;
 
         public Matrix(string expr)
         {

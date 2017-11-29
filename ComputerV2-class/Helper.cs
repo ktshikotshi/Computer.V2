@@ -32,8 +32,7 @@ namespace ComputerV2_class
             {
                 if (Regex.IsMatch(v, rgx))
                 {
-                    double tmp = 0d;
-                    double.TryParse(Regex.Match(prev + v, @"((\+)|(\-))?\d+([\.,]\d+)?").Value, out tmp);
+                    double.TryParse(Regex.Match(prev + v, @"((\+)|(\-))?\d+([\.,]\d+)?").Value, out double tmp);
                     ret += tmp;
                 }
                 prev = v;
