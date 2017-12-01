@@ -59,11 +59,18 @@ namespace ComputerV2_class
                 match = ReplaceDecimalPoint(match);
                 var exp = Regex.Split(match, @"(\*)|(\/)|(\%)");
                 double n1 = double.Parse(exp[0]), n2 = double.Parse(exp[2]), res = 0;
-                switch (exp[1])
+                if (n2 != 0 || exp[1] == "*")
                 {
-                    case "*" : res = n1 * n2; break;
-                    case "%" : res = n1 % n2; break;
-                    default  : res = n1 / n2; break;
+                    switch (exp[1])
+                    {
+                        case "*": res = n1 * n2; break;
+                        case "%": res = n1 % n2; break;
+                        default: res = n1 / n2; break;
+                    }
+                }
+                else
+                {
+                    throw new InvalidExpressionException("Attempted to divide by 0");
                 }
                 expression = expression.Replace(match, ReplaceDecimalPoint($"{res}"));
             }
