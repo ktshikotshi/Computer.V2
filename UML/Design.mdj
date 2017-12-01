@@ -1,7 +1,7 @@
 {
 	"_type": "Project",
 	"_id": "AAAAAAFF+h6SjaM2Hec=",
-	"name": "Untitled",
+	"name": "ComputerV2",
 	"ownedElements": [
 		{
 			"_type": "UMLModel",
@@ -1197,5 +1197,8 @@
 			],
 			"visibility": "public"
 		}
-	]
+	],
+	"author": "Khuthadzo Tshikotshi",
+	"company": "WeThinkCode_",
+	"version": "1.0"
 }
