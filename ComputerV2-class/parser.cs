@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-
+using ComputerV2_class.Exceptions;
 namespace ComputerV2_class
 {
     public static class Parser
@@ -196,6 +196,7 @@ namespace ComputerV2_class
             return tmp;
         }
 
+        //needs work for higher degrees
         private static string Reduce(string f, string var)
         {
             f = Helper.Reduce_helper1(f);
@@ -259,11 +260,13 @@ namespace ComputerV2_class
                     var mtrx = new Matrix(mtrxVal);
                     expr = Matrix.ScalarMultiply(scalar.ToString(), mtrx);
                 }
-                catch (FormatException e) { return (false, "No Scalar value found in expression", null); }
+                catch (FormatException) { throw new InvalidMatrixException("Format of Matrix is Bad"); }
 
                 return (true, null, expr);
                 }
             var split = SplitMatrix(expr);
+            //will throw an exceptoion if the numbers are not correctly formatted.
+            Matrix nMatrix = new Matrix(split.Value);
             return (split.Valid, split.Message, split.Value);
 
         }
@@ -277,7 +280,8 @@ namespace ComputerV2_class
                 if (expr[i] == '[') braces += 1;
                 if (expr[i] == ']') braces -= 1;
             }
-            if (braces != 0) return (false, $"format of matric is not correct:  {expr}", null);
+            if (braces != 0) throw new InvalidMatrixException($"Braces are incomplete :  {expr}");
+            if (Regex.IsMatch(expr, @"\]\[")) throw new InvalidMatrixException($"Missing ; :  {expr}");
             expr = Regex.Replace(expr, @"\[|\]", "");
             var nExpr = Regex.Split(expr, @"[\n]|[;]");
             expr = "";

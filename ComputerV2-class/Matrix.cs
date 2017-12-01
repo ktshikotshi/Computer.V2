@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Text.RegularExpressions;
-using System.Threading;
+using ComputerV2_class.Exceptions;
 
 namespace ComputerV2_class
 {
@@ -27,7 +27,15 @@ namespace ComputerV2_class
             for (var j = 0; j < _dimentions.Rows; j++) {
                 var rw = tmp[j].Split(',');
                 for (var i = 0; i < _dimentions.Columns; i++)
-                    IntMatrix[j, i] = Convert.ToDouble(rw[i]);
+                {
+                    try
+                    {
+                        IntMatrix[j, i] = Convert.ToDouble(rw[i]);
+                    }catch (FormatException)
+                    {
+                        throw new InvalidMatrixException($"Matric value is not valid : {rw[i]}");
+                    }
+                }
             }
 
         }
@@ -37,7 +45,6 @@ namespace ComputerV2_class
             var mat = mtrx.MyMatrix;
             var ret = "";
             scal = Maths.Calculate(scal);
-
             for (var i = 0; i < mat.Length; i++)
             {
                 mat[i] = Regex.Replace(mat[i], @"\[|\]", "");

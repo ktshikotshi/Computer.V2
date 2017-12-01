@@ -20,37 +20,44 @@ namespace ComputerV2
             var curr = Console.ReadLine().ToLower();
             while (curr.ToLower() != "quite")
             {
-                if (curr == "--v")
-                   foreach(var v in variables)
-                        Console.WriteLine($"{v[0]} = {v[1]}");
-                else if (curr == "--f")
-                    foreach(var f in functions)
-                        Console.WriteLine($"{f[0]}({f[1]}) = {f[2]}");
-                else if (!(curr.Contains("=")))
-                    Console.WriteLine("Missing assignment operator.");
-                else
+                try
                 {
-                    string[] sTmp = Regex.Split(curr.Replace(" ", ""), @"\=");
-                    //assignment
-                    if (sTmp[1] != "?")
-                    {
-                        var parse = Parser.Assign(sTmp[0], sTmp[1], ref variables, ref functions);
-                        if (!(parse.Success)) Console.WriteLine(parse.Message);
-                        else Console.WriteLine($"{parse.Value}");
-                    }
-                    //resolution
-                    
+                    if (curr == "--v")
+                        foreach (var v in variables)
+                            Console.WriteLine($"{v[0]} = {v[1]}");
+                    else if (curr == "--f")
+                        foreach (var f in functions)
+                            Console.WriteLine($"{f[0]}({f[1]}) = {f[2]}");
+                    else if (!(curr.Contains("=")))
+                        Console.WriteLine("Missing assignment operator.");
                     else
                     {
-                        var sub = Parser.Substitute(sTmp[0], functions, variables, "");
-                        if (sub.Success)
+                        string[] sTmp = Regex.Split(curr.Replace(" ", ""), @"\=");
+                        //assignment
+                        if (sTmp[1] != "?")
                         {
-                            //Console.WriteLine($"{Maths.Calculate(sTmp[0])}");
-                            Console.WriteLine($"{Maths.Calculate(sub.Value)}");
+                            var parse = Parser.Assign(sTmp[0], sTmp[1], ref variables, ref functions);
+                            if (!(parse.Success)) Console.WriteLine(parse.Message);
+                            else Console.WriteLine($"{parse.Value}");
                         }
-                        else Console.WriteLine(Parser.Substitute(sTmp[0], functions, variables, "").Message);
+                        //resolution
 
+                        else
+                        {
+                            var sub = Parser.Substitute(sTmp[0], functions, variables, "");
+                            if (sub.Success)
+                            {
+                                //Console.WriteLine($"{Maths.Calculate(sTmp[0])}");
+                                Console.WriteLine($"{Maths.Calculate(sub.Value)}");
+                            }
+                            else Console.WriteLine(Parser.Substitute(sTmp[0], functions, variables, "").Message);
+
+                        }
                     }
+                }
+                catch(Exception e)
+                {
+                    Console.WriteLine(e.Message);
                 }
                 Console.Write("> ");
                 curr = Console.ReadLine().ToLower();
