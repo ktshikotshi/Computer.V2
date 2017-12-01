@@ -17,7 +17,7 @@ namespace ComputerV2_class
             while (match.Success)
             {
                 var str = Regex.Replace(match.Value, @"(\-|\+)?\d+([\.,]\d+)?", m => string.Format(@"0{0}", m.Value));
-                var tmp = MyMaths.Calc(str);
+                var tmp = Maths.Calculate(str);
                 f = f.Replace(match.Value, tmp.Contains("-") ? tmp : "+" + tmp);
                 match = rgx.Match(f);
             }

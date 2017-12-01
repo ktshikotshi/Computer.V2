@@ -82,7 +82,7 @@ namespace ComputerV2_class
                                     if (v[0] == func[1])
                                     {
                                         rplc = rplc.Replace(f[1], $"({v[1]})");
-                                        rplc = MyMaths.Calc(rplc);
+                                        rplc = Maths.Calculate(rplc);
                                         expr = expr.Replace(tmp, rplc);
                                         break;
                                     }
@@ -92,7 +92,7 @@ namespace ComputerV2_class
                             else
                             {
                                 rplc = rplc.Replace(f[1], $"({func[1]})");
-                                rplc = MyMaths.Calc(rplc);
+                                rplc = Maths.Calculate(rplc);
                                 expr = expr.Replace(tmp, rplc);
                             }
                         }
@@ -101,6 +101,7 @@ namespace ComputerV2_class
             }
             return (fVar, expr); 
         }
+
         //find the value of the variable
         private static string MatchVariable(string expr, List<List<string>> vars)
         {
@@ -118,7 +119,7 @@ namespace ComputerV2_class
                 }
             }
             if (!Regex.IsMatch(expr, @"[A-zA-Z]+"))
-                expr = MyMaths.Calc(expr);
+                expr = Maths.Calculate(expr);
             return expr;
         }
         
@@ -156,7 +157,7 @@ namespace ComputerV2_class
             {
                 if (vars[i][0] == expr)
                 {
-                    vars[i][1] = MyMaths.Calc(value);
+                    vars[i][1] = Maths.Calculate(value);
                     return (true, null, vars[i][1]);
                 }
             }

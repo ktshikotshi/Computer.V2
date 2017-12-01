@@ -42,13 +42,13 @@ namespace ComputerV2
                     
                     else
                     {
-                        //var sub = Parser.Substitute(sTmp[0], functions, variables, "");
-                        //if (sub.Success)
-                        //{
-                            Console.WriteLine($"{Maths.Calculate(sTmp[0])}");
-                            //Console.WriteLine($"{MyMaths.Calc(sub.Value)}");
-                        //}
-                        //else Console.WriteLine(Parser.Substitute(sTmp[0], functions, variables, "").Message);
+                        var sub = Parser.Substitute(sTmp[0], functions, variables, "");
+                        if (sub.Success)
+                        {
+                            //Console.WriteLine($"{Maths.Calculate(sTmp[0])}");
+                            Console.WriteLine($"{Maths.Calculate(sub.Value)}");
+                        }
+                        else Console.WriteLine(Parser.Substitute(sTmp[0], functions, variables, "").Message);
 
                     }
                 }

@@ -46,7 +46,6 @@
     <Compile Include="Exceptions\InvalidExpressionException.cs" />
     <Compile Include="Maths.cs" />
     <Compile Include="Matrix.cs" />
-    <Compile Include="myMaths.cs" />
     <Compile Include="Helper.cs" />
     <Compile Include="parser.cs" />
     <Compile Include="Polynomial.cs" />

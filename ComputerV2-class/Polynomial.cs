@@ -247,7 +247,7 @@ namespace ComputerV2_class
                     $"{_termChar} = ( {b2:0.###} ± √({b3 - ac4:0.###})) / {a2:0.###}\n";
             if (b3 - ac4 > 0)
             {
-                sqRoot = MyMaths.Sqrt(b3 - (ac4));
+                //sqRoot = MyMaths.Sqrt(b3 - (ac4));
                 x1 = (b2 + sqRoot) / a2;
                 x2 = (b2 - sqRoot) / a2;
                 _out += $"{_termChar + "\n"} = ({b2:0.###} ± {sqRoot:0.###}) / {a2:0.###}\n" +
@@ -255,7 +255,7 @@ namespace ComputerV2_class
             }
             else if (b3 - ac4 < 0)
             {
-                sqRoot = MyMaths.Sqrt((b3 - (ac4)) * -1);
+                //sqRoot = MyMaths.Sqrt((b3 - (ac4)) * -1);
                 x1 = sqRoot/a2;
                 x2 = sqRoot/a2;
                 _out += $"{_termChar} = ({b2:0.###} ± {sqRoot:0.###} * i ) / {a2:0.###}\n{_termChar} = ({b2:0.###} / {a2:0.###}) ± ({sqRoot:0.###} / {a2:0.###}) * i\n" +
@@ -263,7 +263,7 @@ namespace ComputerV2_class
             }
             else
             {
-                sqRoot = MyMaths.Sqrt(b3 - (ac4));
+                //sqRoot = MyMaths.Sqrt(b3 - (ac4));
                 x1 = (b2 + sqRoot) / a2;
                 _out = $"{_termChar} = ({b2:0.###} ± {sqRoot:0.###}) / {a2:0.###}\n----------\nDiscriminant is null, the solution is:\n{FractionView((b2 + sqRoot), a2)}\n";
             }

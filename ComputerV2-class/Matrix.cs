@@ -36,13 +36,13 @@ namespace ComputerV2_class
         {
             var mat = mtrx.MyMatrix;
             var ret = "";
-            scal = MyMaths.Calc(scal);
+            scal = Maths.Calculate(scal);
 
             for (var i = 0; i < mat.Length; i++)
             {
                 mat[i] = Regex.Replace(mat[i], @"\[|\]", "");
                 var m = mat[i].Split(',');
-                for (var j = 0; j < m.Length; j++) m[j] = m[j] == "" ? "" : MyMaths.Calc($"{scal} * {m[j]}");
+                for (var j = 0; j < m.Length; j++) m[j] = m[j] == "" ? "" : Maths.Calculate($"{scal} * {m[j]}");
                 for (var k = 0; k < m.Length; k++)
                     ret += k + 1 == m.Length ? m[k] : $"{m[k]},";
                 mat[i] = ret;
@@ -66,7 +66,7 @@ namespace ComputerV2_class
 
                     while (rowCounter < m1.Dimentions.Columns)
                     {
-                        ret += $" {(rowCounter > 0 ? "+" : "")} {m1.IntMatrix[i, rowCounter]} * {m2.IntMatrix[rowCounter, columnCounter]}";
+                        ret += $"{(rowCounter > 0 ? "+" : "")} {m1.IntMatrix[i, rowCounter]}*{m2.IntMatrix[rowCounter, columnCounter]}";
                         rowCounter++;
                         if (rowCounter == m1.Dimentions.Columns && columnCounter < m2.Dimentions.Rows)
                         {
@@ -87,6 +87,8 @@ namespace ComputerV2_class
         /*
          * a = [[0,3,5];[5,5,2]]
          * b = [[3,4];[3, -2];[4, -2]]
+         * a=[[4,-1];[2,-1]]
+         * b=[[3,1,0];[2,1,-2]]
          */
 
         private static string CalcMatrix(string met ,int rows, int columns)
@@ -95,16 +97,16 @@ namespace ComputerV2_class
             var tmp = met.Split('\n');
             
             var tmp2 = new string[rows, columns];
-            for (var j = 0; j < columns; j++) {
+            for (var j = 0; j < rows; j++) {
                 var rw = tmp[j].Split(',');
-                for (var i = 0; i < rows; i++)
+                for (var i = 0; i < columns; i++)
                     if (rw.Length > 1)
-                    tmp2[j, i] = MyMaths.Calc(rw[i]);
+                    tmp2[j, i] = Maths.Calculate(rw[i]);
             }
-            for(var i = 0; i < columns; i++)
+            for(var i = 0; i < rows; i++)
             {
                 ret += "[";
-                for (var j = 0; j < rows; j++)
+                for (var j = 0; j < columns; j++)
                 {
                     ret += $"{(j > 0? ",": "")}{tmp2[i,j]}";
                 }
