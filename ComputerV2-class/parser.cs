@@ -127,6 +127,7 @@ namespace ComputerV2_class
             string[] func = Regex.Split(expr, @"\(|\)");
             var matches = Regex.Matches(value, @"[a-zA-Z]+");
             string[] var = new string[matches.Count];
+            if (func[1] == "i") return (false, "variable i cannot be used with a function", null);
             for (var i = 0; i < matches.Count; i++)
                 var[i] = matches[i].Value;
             foreach (var v in var)
@@ -258,7 +259,7 @@ namespace ComputerV2_class
             {
                 for (var i = pow; i > 0; i--)
                 {
-                    var regex = new Regex(@"(\-|\+)?(\d+([\.]\d+)?)?(\*)?[A-Za-z]+(\^[" + i+"])");
+                    var regex = new Regex(@"(?<!(\())((\-|\+)?(\d+([\.]\d+)?)?(\*)?[A-Za-z]+(\^0))(?!\))");
                     var coeff = 0d;
                     var variable = "";
                     while (regex.IsMatch(expression))
