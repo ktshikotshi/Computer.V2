@@ -19,8 +19,7 @@ namespace ComputerV2_class
                 var mx = MatrixManipulation(val);
                 if (mx.Found || (!mx.Found && mx.Message == null)) val = mx.Value;
                 else return (false, mx.Message, null);
-                val = ManageNaturalForm(val, expr);
-                val = Reduce(val, expr);
+                val = NormaliseFunc(val);
                 var Ass = AssignFunction(expr, val, ref funcs);
                 if (Ass.Success) return (true, null, Ass.Value);
                 else
@@ -59,7 +58,7 @@ namespace ComputerV2_class
 
         private static (string Variable, string Value) MatchFunction(string expr, List<List<string>> funcs, List<List<string>> vars)
         {
-            Regex rgx = new Regex(@"(((\-|\+)(\s+)?)?[a-zA-Z]+\((([a-zA-Z]+)|(\d+([\.,]\d+)?))\))");
+            Regex rgx = new Regex(@"(((\-|\+)(\s+)?)?[a-zA-Z]+\((([a-zA-Z]+)|((\-)?\d+([\.]\d+)?))\))");
             var match = rgx.Matches(expr);
             string fVar = "";
             for (var i = 0; i < match.Count; i++)
@@ -169,52 +168,6 @@ namespace ComputerV2_class
             vars.Add(newVar);
             return (true, null, vars[vars.Count - 1][1]);
         }
-
-        //needs to function with higher degrees
-        private static string ManageNaturalForm(string f, string var)
-        {
-            string[] expr = Helper.Split(f);
-            var = Regex.Split(var, @"\(|\)")[1];
-            const string pow1 = @"^(\d+([\.,]\d+)?)?(\*)?[A-Za-z](\^[1])?$";
-            const string pow2 = @"^(\d+([\.,]\d+)?)?(\*)?[A-Za-z]\^[2]$";
-            const string pow0 = @"^(\d+([\.,]\d+)?)((\*)?[A-Za-z]\^[0])?$";
-
-            for (var i = 0; i < expr.Length; i++)
-            {
-                if (Regex.IsMatch(expr[i], pow2, RegexOptions.IgnoreCase))
-                    expr[i] = (Regex.IsMatch(expr[i], @"^\d+([\.,]\d+)?", RegexOptions.IgnoreCase) ?
-                        Regex.Match(expr[i], @"^\d+([\.,]\d+)?", RegexOptions.IgnoreCase).ToString() : "1") + var + "^2";
-                else if (Regex.IsMatch(expr[i], pow1, RegexOptions.IgnoreCase))
-                    expr[i] = (Regex.IsMatch(expr[i], @"^\d+([\.,]\d+)?", RegexOptions.IgnoreCase) ?
-                        Regex.Match(expr[i], @"^\d+([\.,]\d+)?", RegexOptions.IgnoreCase).ToString() : "1") + var + "^1";
-                else if (Regex.IsMatch(expr[i], pow0, RegexOptions.IgnoreCase))
-                    expr[i] = Regex.Match(expr[i], @"^\d+([\.,]\d+)?", RegexOptions.IgnoreCase).Value;
-            }
-            string tmp = "";
-            foreach (var s in expr)
-                tmp += s;
-            return tmp;
-        }
-
-        //needs work for higher degrees
-        private static string Reduce(string f, string var)
-        {
-            f = Helper.Reduce_helper1(f);
-            string[] expr = Helper.Split(f);
-            var = Regex.Split(var, @"\(|\)")[1];
-            const string pow1 = @"^((\d+)([\.,]\d+)?)?(\*)?[A-Za-z](\^[1])?$";
-            const string pow2 = @"^((\d+)([\.,]\d+)?)?(\*)?[A-Za-z]\^[2]$";
-            const string pow0 = @"^\d+([\.,]\d+)?$";
-            double a = 0, b = 0, c = 0;
-            a = Helper.Reduce_helper(expr, pow2);
-            b = Helper.Reduce_helper(expr, pow1);
-            c = Helper.Reduce_helper(expr, pow0);
-            string tmp = "";
-            tmp += a != 0 ? (a > 0 ? a.ToString(): " " + a.ToString())  + $"*{var}^2" : "";
-            tmp += b != 0 ? (b > 0 ? (tmp == ""? b.ToString() : $" + {b}") : " " + b.ToString()) + $"*{var}" : "";
-            tmp += c != 0 ? (c > 0 ? (tmp == "" ? c.ToString() : $" + {c}") : " " + c.ToString()) : "";
-            return tmp;
-        }
         
         private static (bool Success, string Message) Undefined(string val, string fVar)
         {
@@ -295,6 +248,73 @@ namespace ComputerV2_class
                     return (false, $"format of matric is not correct:  {nExpr[i]}", null);
             }
             return (true, null, expr);
+        }
+        
+        public static string NormaliseFunc(string expression)
+        {
+            var pow = HighestPow(ref expression);
+            var newExpression = "";
+            if (pow != -1)
+            {
+                for (var i = pow; i > 0; i--)
+                {
+                    var regex = new Regex(@"(\-|\+)?(\d+([\.]\d+)?)?(\*)?[A-Za-z]+(\^[" + i+"])");
+                    var coeff = 0d;
+                    var variable = "";
+                    while (regex.IsMatch(expression))
+                    {
+                        var match = regex.Match(expression).Value;
+                        var r2 = new Regex(@"(\-)?\d+([\.]\d+)?");
+                        var tmp = r2.Match(match).Value != ""? r2.Match(match).Value : "1" ;
+                        coeff += double.Parse(tmp);
+                        variable = Regex.Match(match, @"[A-Za-z]+").Value;
+                        expression = regex.Replace(expression, "", 1);
+                    }
+                    if (i != 1) newExpression += coeff != 0? $"{(coeff > 0 ? (newExpression != ""? $"+{coeff}": $"{coeff}") : $"{coeff}")}*{variable}^{i}" : "";
+                    else newExpression += coeff != 0 ? $"{(coeff > 0 ? (newExpression != "" ? $"+{coeff}" : $"{coeff}") : $"{coeff}")}*{variable}" : "";
+                }
+            }
+            expression = Maths.Calculate(expression);
+            expression = newExpression != "" ? $"{newExpression}{(expression != ""? (expression[0] != '+' && expression[0] != '-'? "+": "") :"")}{expression}" : expression;
+            return (expression);
+        }
+
+        private static int HighestPow(ref string expression)
+        {
+            var regex = new Regex(@"((\-|\+)?\d+([\.]\d+)?)?(\*)?[A-Za-z]+(\^)?((\-)?\d+([\.]\d+)?)?");
+            if (regex.IsMatch(expression))
+            {
+                int pow = 0;
+                //manage powers of 0 and 1
+                {
+                    var pow0Regex = new Regex(@"(\d+([\.]\d+)?)((\*)?[A-Za-z]\^[0])");
+                    //while (pow0Regex.IsMatch(expression))
+                    expression = pow0Regex.Replace(expression, "$1");
+                    var pow1Regex = new Regex(@"(((\-)?\d+([\.]\d+)?)?(\*)?[A-Za-z]+)(\-|\+|$)");
+                    //while (pow1Regex.IsMatch(expression))
+                    expression = pow1Regex.Replace(expression, "$1^1$6");
+                }
+                var matches = regex.Matches(expression);
+                for(var i = 0; i < matches.Count; i++)
+                {
+                    try
+                    {
+                        string tmpStr = Regex.Match(matches[i].Value, @"((?<=\^)((\-)?\d+([\.]\d+)?))").Value;
+                        //throws format error if the number is not whole and positive.
+                        int tmp = int.Parse(tmpStr);
+                        if (tmp < 0)
+                            throw new FormatException();
+                        if (tmp > pow)
+                            pow = tmp;
+                    }
+                    catch(FormatException)
+                    {
+                        throw new InvalidExpressionException("Power of Polinomial is not of correct format");
+                    }
+                }
+                return (pow);
+            }
+            return (-1);
         }
     }
 }

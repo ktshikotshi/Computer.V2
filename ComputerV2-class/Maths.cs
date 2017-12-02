@@ -99,17 +99,19 @@ namespace ComputerV2_class
 
         private static void Addition(ref string expression)
         {
-            var regex = new Regex(@"((\-)?\d+([\.]\d+)?)\+((\-)?\d+([\.]\d+)?)");
-            if (!Regex.IsMatch(expression, @""))
+            var regex = new Regex(@"[^\^]*((\-)?\d+([\.]\d+)?)\+((\-)?\d+([\.]\d+)?)");
+            if (Regex.IsMatch(expression, @"(\d+([\.]\d+)?)(\-)(\d+([\.]\d+)?)"))
                 expression = ManageNegative(expression);
             while(regex.IsMatch(expression))
             {
                 var match = regex.Match(expression).Value;
-                match = ReplaceDecimalPoint(match);
-                var exp = Regex.Split(match, @"\+");
+                if (match[0] == '+')
+                    match = match.Substring(1);
+                var m2 = ReplaceDecimalPoint(match);
+                var exp = Regex.Split(m2, @"\+");
                 double n1 = double.Parse(exp[0]), n2 = double.Parse(exp[1]), res = 0;
                 res = n1 + n2;
-                expression = expression.Replace(match, ReplaceDecimalPoint($"{res}"));
+                expression = expression.Replace(match, $"{res}");
             }
         }
 
@@ -125,8 +127,6 @@ namespace ComputerV2_class
         {
             if (Regex.IsMatch(expression, @"([\.])(\d+)"))
                 expression = Regex.Replace(expression, @"([\.])(\d+)", ",$2");
-            else if (Regex.IsMatch(expression, @"([\,])(\d+)"))
-                expression = Regex.Replace(expression, @"([\,])(\d+)", ".$2");
             return (expression);
         }
     }
