@@ -7,22 +7,27 @@ namespace ComputerV2_class
         //throws InvalidExpressionException
         public static string Calculate(string expression)
         {
-            if (Regex.IsMatch(expression, @"[\*]{2,}"))
-                throw new InvalidExpressionException("Input Error");
-            expression = expression.Replace(" ", "");
-            Brackets(ref expression);
-            Pow(ref expression);
-            DivideMultiply(ref expression);
-            Imaginary(ref expression);
-            Addition(ref expression);
-            expression = expression.Replace(" ","");
-            if (expression.Length > 0)
+            var matrix = Parser.MatrixManipulation(expression);
+            if (!matrix.Found)
             {
-                if (expression[0] == '+')
-                    expression = expression.Substring(1);
-                if (expression[expression.Length - 1] == '+')
-                    expression = expression.Substring(0, expression.Length - 1);
+                if (Regex.IsMatch(expression, @"[\*]{2,}"))
+                    throw new InvalidExpressionException("Input Error");
+                expression = expression.Replace(" ", "");
+                Brackets(ref expression);
+                Pow(ref expression);
+                DivideMultiply(ref expression);
+                Imaginary(ref expression);
+                Addition(ref expression);
+                expression = expression.Replace(" ", "");
+                if (expression.Length > 0)
+                {
+                    if (expression[0] == '+')
+                        expression = expression.Substring(1);
+                    if (expression[expression.Length - 1] == '+')
+                        expression = expression.Substring(0, expression.Length - 1);
+                }
             }
+            else expression = matrix.Value;
             return (expression);
         }
 
@@ -105,8 +110,7 @@ namespace ComputerV2_class
                 }
                 if (res != 0)
                 {
-                    if (expression.Length > 0)
-                        expression = expression =="" || Regex.IsMatch(expression,@"^(\+)|(\-)")? $"{res}*i" + expression: $"{res}*i+" + expression;
+                   expression = expression =="" || Regex.IsMatch(expression,@"^(\+)|(\-)")? $"{res}*i" + expression: $"{res}*i+" + expression;
                 }
             }
         }

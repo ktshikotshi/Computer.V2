@@ -131,7 +131,7 @@ namespace ComputerV2_class
             for (var i = 0; i < matches.Count; i++)
                 var[i] = matches[i].Value;
             foreach (var v in var)
-                if (v != func[1]) return (false, "Function should only contain one variable", null);
+                if (v != func[1] && v !="i") return (false, "Function should only contain one variable", null);
             for (var i = 0; i < funcs.Count; i++)
             {
                 if (funcs[i][0] == func[0])
@@ -256,7 +256,7 @@ namespace ComputerV2_class
         
         public static string NormaliseFunc(string expression)
         {
-            var rgx = new Regex(@"(\*)?(\[.*\])\n(\*)?");
+            var rgx = new Regex(@"((\*)?(\[.*\])\n(\*)?)|(((\-)|(\+))?(d+([\.,]\d+)?)?\*[i])");
             var braceMatches = rgx.Matches(expression);
             if (braceMatches.Count > 0)
                 expression = rgx.Replace(expression, "");
