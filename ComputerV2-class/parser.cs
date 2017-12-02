@@ -33,6 +33,7 @@ namespace ComputerV2_class
                 {
                     if (Substitute(val, funcs, vars, fVar).Success) val = Substitute(val, funcs, vars, fVar).Value;
                     else return (false, Substitute(val, funcs, vars, fVar).Message, null);
+                    if (!(Undefined(val, "i").Success)) return (false, "Cannot assign function to variable.", null);
                     var mx = MatrixManipulation(val);
                     if (mx.Found || (!mx.Found && mx.Message == null)) val = mx.Value;
                     else return (false, mx.Message, null);
@@ -80,7 +81,7 @@ namespace ComputerV2_class
                                 {
                                     if (v[0] == func[1])
                                     {
-                                        rplc = rplc.Replace(f[1], $"{v[1]}");
+                                        rplc = rplc.Replace(f[1], $"*{v[1]}");
                                         rplc = $"1*{Maths.Calculate(rplc)}";
                                         expr = expr.Replace(tmp, rplc);
                                         break;
@@ -90,7 +91,7 @@ namespace ComputerV2_class
                             }
                             else
                             {
-                                rplc = rplc.Replace(f[1], $"{func[1]}");
+                                rplc = rplc.Replace(f[1], $"*{func[1]}");
                                 rplc = $"1*{Maths.Calculate(rplc)}";
                                 expr = expr.Replace(tmp, rplc);
                             }
@@ -124,7 +125,8 @@ namespace ComputerV2_class
         
         private static (bool Success, string Message, string Value) AssignFunction(string expr, string value, ref List<List<string>> funcs)
         {
-            string[] func = Regex.Split(expr, @"\(|\)");
+            if (!Regex.IsMatch(expr, @"[a-zA-Z]+(\()(.*)(\))")) return (false, "Function is not formatted correctly.", null);
+            string[] func = Regex.Split(expr, @"[\(\)]");
             var matches = Regex.Matches(value, @"[a-zA-Z]+");
             string[] var = new string[matches.Count];
             if (func[1] == "i") return (false, "variable i cannot be used with a function", null);
@@ -278,8 +280,8 @@ namespace ComputerV2_class
                         variable = Regex.Match(match, @"[A-Za-z]+").Value;
                         expression = regex.Replace(expression, "", 1);
                     }
-                    if (i != 1) newExpression += coeff != 0? $"{(coeff > 0 ? (newExpression != ""? $"+{coeff}": $"{coeff}") : $"{coeff}")}*{variable}^{i}" : "";
-                    else newExpression += coeff != 0 ? $"{(coeff > 0 ? (newExpression != "" ? $"+{coeff}" : $"{coeff}") : $"{coeff}")}*{variable}" : "";
+                    if (i != 1) newExpression += coeff != 0? $"{(coeff > 0 ? (newExpression != ""? $"+{coeff}": $"{coeff}") : $"{coeff}")}{variable}^{i}" : "";
+                    else newExpression += coeff != 0 ? $"{(coeff > 0 ? (newExpression != "" ? $"+{coeff}" : $"{coeff}") : $"{coeff}")}{variable}" : "";
                 }
             }
             expression = Maths.Calculate(expression);
