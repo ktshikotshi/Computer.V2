@@ -15,19 +15,24 @@ namespace ComputerV2_class
             DivideMultiply(ref expression);
             Imaginary(ref expression);
             Addition(ref expression);
+            expression = expression.Replace(" ","");
             if (expression.Length > 0)
+            {
                 if (expression[0] == '+')
                     expression = expression.Substring(1);
+                if (expression[expression.Length - 1] == '+')
+                    expression = expression.Substring(0, expression.Length - 1);
+            }
             return (expression);
         }
 
         private static void Brackets(ref string expression)
         {
-            var regex = new Regex(@"(?<=\()([^a-zA-z]*)(?=\))");
+            var regex = new Regex(@"(?<=\()([^a-zA-z].*)(?=\))");
             while (regex.IsMatch(expression))
             {
                 var match = regex.Match(expression).Value;
-                expression = expression.Replace ($"({match})", Calculate(match));
+                expression = expression.Replace ($"({match})", $"1*{Calculate(match)}");
             }
         }
 
@@ -46,10 +51,10 @@ namespace ComputerV2_class
                     int count = int.Parse(exp[1]);
                     if (count < 0)
                         throw new System.FormatException();
-                    double res = value;
+                    double res = value > 0? value: -1 * value;
                     for (var i = 1; i < count; i++) res *= value;
                     //prevent exponential notation to a degree, to big of a number will have a result of infinity;
-                    expression = expression.Replace(match, ReplaceDecimalPoint(res.ToString("0." + new string('#', 9999))));
+                    expression = expression.Replace(match, res.ToString("0." + new string('#', 9999)));
                 }
                 catch(System.FormatException)
                 {
@@ -61,6 +66,7 @@ namespace ComputerV2_class
         private static void DivideMultiply(ref string expression)
         {
             var regex = new Regex(@"((\-)?\d+([\.,]\d+)?)(\*|\%|\/)((\-)?\d+([\.,]\d+)?)");
+            expression = ManageNegative(expression);
             while(regex.IsMatch(expression))
             {
                 var match = regex.Match(expression).Value;
@@ -80,7 +86,7 @@ namespace ComputerV2_class
                 {
                     throw new InvalidExpressionException("Attempted to divide by 0");
                 }
-                expression = expression.Replace(match,$"{res}");
+                expression = expression.Replace(match, $"{res}");
             }
         }
 
@@ -98,7 +104,10 @@ namespace ComputerV2_class
                     expression = expression.Replace(match, "");
                 }
                 if (res != 0)
-                    expression = $"{res}*i+0+" + expression;
+                {
+                    if (expression.Length > 0)
+                        expression = expression =="" || Regex.IsMatch(expression,@"^(\+)|(\-)")? $"{res}*i" + expression: $"{res}*i+" + expression;
+                }
             }
         }
 
@@ -109,7 +118,7 @@ namespace ComputerV2_class
             var braceMatches = rgx.Matches(expression);
             if (braceMatches.Count > 0)
                 expression = rgx.Replace(expression, "");
-            if (Regex.IsMatch(expression, @"(\d+([\.,]\d+)?)(\-)(\d+([\.,]\d+)?)"))
+            if (Regex.IsMatch(expression, @"(\d+([\.,]\d+)?)(\-)?(\-)(\d+([\.,]\d+)?)"))
                 expression = ManageNegative(expression);
             while(regex.IsMatch(expression))
             {
@@ -130,20 +139,29 @@ namespace ComputerV2_class
                 }
                 
             }
+            var expr = " ";
             if (braceMatches.Count > 0)
             {
                 for(var i = braceMatches.Count - 1; i >= 0; i--)
                 {
-                    expression = expression[0] != '-' && expression[0] != '+' ? $"{braceMatches[i].Value}+{expression}" : braceMatches[i].Value + expression;
+                    expr = expr[0] != '-' && expr[0] != '+' ? $"{braceMatches[i].Value}+{expr}" : braceMatches[i].Value + expr;
                 }
+            }
+            if (expression.Length > 0)
+            {
+                if (expression[expression.Length - 1] != '%' && expression[expression.Length - 1] != '/' && expression[expression.Length - 1] != '*')
+                {
+                    expression = expression[0] != '-' && expression[0] != '+' ? $"{expr}+{expression}" : expression + expr;
+                }
+                else expression += expr;
             }
         }
 
         private static string ManageNegative(string expression)
         {
-            var regex = new Regex(@"(\d+([\.]\d+)?)(\-)(\d+([\.]\d+)?)");
+            var regex = new Regex(@"(\d+([\.]\d+)?)(\-)?(\-)(\d+([\.]\d+)?)");
             while (regex.IsMatch(expression))
-                expression = regex.Replace(expression, "$1+$3$4");
+                expression = regex.Replace(expression, "$1+$4$5");
             return (expression);
         }
 

@@ -58,7 +58,7 @@ namespace ComputerV2_class
 
         private static (string Variable, string Value) MatchFunction(string expr, List<List<string>> funcs, List<List<string>> vars)
         {
-            Regex rgx = new Regex(@"(((\-|\+)(\s+)?)?[a-zA-Z]+\((([a-zA-Z]+)|((\-)?\d+([\.]\d+)?))\))");
+            Regex rgx = new Regex(@"([a-zA-Z]+\((([a-zA-Z]+)|((\-)?\d+([\.]\d+)?))\))");
             var match = rgx.Matches(expr);
             string fVar = "";
             for (var i = 0; i < match.Count; i++)
@@ -80,8 +80,8 @@ namespace ComputerV2_class
                                 {
                                     if (v[0] == func[1])
                                     {
-                                        rplc = rplc.Replace(f[1], $"({v[1]})");
-                                        rplc = Maths.Calculate(rplc);
+                                        rplc = rplc.Replace(f[1], $"{v[1]}");
+                                        rplc = $"1*{Maths.Calculate(rplc)}";
                                         expr = expr.Replace(tmp, rplc);
                                         break;
                                     }
@@ -90,8 +90,8 @@ namespace ComputerV2_class
                             }
                             else
                             {
-                                rplc = rplc.Replace(f[1], $"({func[1]})");
-                                rplc = Maths.Calculate(rplc);
+                                rplc = rplc.Replace(f[1], $"{func[1]}");
+                                rplc = $"1*{Maths.Calculate(rplc)}";
                                 expr = expr.Replace(tmp, rplc);
                             }
                         }
@@ -112,7 +112,7 @@ namespace ComputerV2_class
                 {
                     if (v[0] == match[i].Value)
                     {
-                        expr = expr.Replace(match[i].Value, v[1]);
+                        expr = expr.Replace(match[i].Value, $"1*{v[1]}");
                         break;   
                     } 
                 }
@@ -209,10 +209,13 @@ namespace ComputerV2_class
                 }
                 try
                 {
-                    var scalar = tmp[0].Contains(",") ? Decimal.Parse(tmp[tmp.Length - 1]) : Decimal.Parse(tmp[0]);
-                    var mtrxVal = tmp[0].Contains(",") ? SplitMatrix(tmp[0]).Value : SplitMatrix(tmp[tmp.Length - 1]).Value;
-                    var mtrx = new Matrix(mtrxVal);
-                    expr = Matrix.ScalarMultiply(scalar.ToString(), mtrx);
+                    if (!Regex.IsMatch(tmp[0], @"[a-zA-Z]"))
+                    {
+                        var scalar = tmp[0].Contains(",") ? Decimal.Parse(tmp[tmp.Length - 1]) : Decimal.Parse(tmp[0]);
+                        var mtrxVal = tmp[0].Contains(",") ? SplitMatrix(tmp[0]).Value : SplitMatrix(tmp[tmp.Length - 1]).Value;
+                        var mtrx = new Matrix(mtrxVal);
+                        expr = Matrix.ScalarMultiply(scalar.ToString(), mtrx);
+                    }
                 }
                 catch (FormatException) { throw new InvalidMatrixException("Format of Matrix is Bad"); }
 
@@ -253,6 +256,10 @@ namespace ComputerV2_class
         
         public static string NormaliseFunc(string expression)
         {
+            var rgx = new Regex(@"(\*)?(\[.*\])\n(\*)?");
+            var braceMatches = rgx.Matches(expression);
+            if (braceMatches.Count > 0)
+                expression = rgx.Replace(expression, "");
             var pow = HighestPow(ref expression);
             var newExpression = "";
             if (pow != -1)
@@ -277,6 +284,19 @@ namespace ComputerV2_class
             }
             expression = Maths.Calculate(expression);
             expression = newExpression != "" ? $"{newExpression}{(expression != ""? (expression[0] != '+' && expression[0] != '-'? "+": "") :"")}{expression}" : expression;
+            if (braceMatches.Count > 0)
+            {
+                var expr = "";
+                for (var i = braceMatches.Count - 1; i >= 0; i--)
+                {
+                    expr += braceMatches[i].Value;
+                }
+                if (expr.Length > 0)
+                {
+                    if (expr[0] == '*') { expression += expr; }
+                    else { expression = expr + expression; }
+                }
+            }
             return (expression);
         }
 
