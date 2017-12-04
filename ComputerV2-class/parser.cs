@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 using ComputerV2_class.Exceptions;
 namespace ComputerV2_class
 {
-    public static class Parser
+    public static class Parse
     {
         public static (bool Success, string Message, string Value) Assign(string expr, string val, ref List<List<string>> vars, ref List<List<string>> funcs)
         {
@@ -186,13 +186,20 @@ namespace ComputerV2_class
         public static (bool Found, string Message, string Value) MatrixManipulation(string expr)
         {
             if (!expr.Contains("[")) return (false, null, expr);
+
+            expr = ManMatrix(expr);
+            
             if (expr.Contains("*"))
             {
-                var tmp = expr.Split('*');
                 if (expr.Contains("**"))
                 {
+                    expr = expr.Replace("1*", "");
+                    var tmp = expr.Split('*');
                     if (SplitMatrix(tmp[0]).Valid && SplitMatrix(tmp[tmp.Length - 1]).Valid)
                     {
+                        
+                        if (!tmp[0].Contains("[") || !tmp[tmp.Length - 1].Contains("["))
+                            throw new InvalidMatrixException("Matrix maltiplication by scalar must only contain 1 '*'");
                         Matrix thisM = new Matrix(SplitMatrix(tmp[0]).Value);
                         Matrix this2 = new Matrix(SplitMatrix(tmp[tmp.Length - 1]).Value);
                         var mlty = Matrix.Multiply(thisM, this2);
@@ -211,6 +218,12 @@ namespace ComputerV2_class
                 }
                 try
                 {
+                    
+                    var str = expr.Substring(0, expr.IndexOf('[')); 
+                    expr = Maths.Calculate(str) + expr.Substring((expr.IndexOf('[')));
+                    var tmp = expr.Split('*');
+                    if (tmp[0].Contains("[") && tmp[tmp.Length - 1].Contains("["))
+                        throw new InvalidMatrixException("Matrix maltiplication by Matrix must contain '**'");
                     if (!Regex.IsMatch(tmp[0], @"[a-zA-Z]"))
                     {
                         var scalar = tmp[0].Contains(",") ? Decimal.Parse(tmp[tmp.Length - 1]) : Decimal.Parse(tmp[0]);
@@ -230,6 +243,33 @@ namespace ComputerV2_class
 
         }
 
+        public static string ManMatrix(string expression)
+        {
+            var regex = new Regex(@"((\d+([\.,]\d+)?)\*(\[.*\](\n)?))|((\[.*\](\n)?)\*(\d+([\.,]\d+)?))");
+            while (regex.IsMatch(expression))
+            {
+                var match = regex.Match(expression).Value;
+                var tmp = match.Split('*');
+                var scalar = tmp[0].Contains("[") ? Decimal.Parse(tmp[tmp.Length - 1]) : Decimal.Parse(tmp[0]);
+                var mtrxVal = tmp[0].Contains("[") ? SplitMatrix(tmp[0]).Value : SplitMatrix(tmp[tmp.Length - 1]).Value;
+                var mtrx = new Matrix(mtrxVal);
+                expression = expression.Replace(match, Matrix.ScalarMultiply(scalar.ToString(), mtrx));
+                
+            }
+            regex = new Regex(@"((\[.*\](\n)?)+\*\*(\[.*\](\n)?)+(?=[\*]))");
+            while (regex.IsMatch(expression))
+            {
+                var match = regex.Match(expression).Value;
+                var m2 = match.Remove(match.IndexOf('*'), 1);
+                var tmp = m2.Split('*');
+                Matrix thisM = new Matrix(SplitMatrix(tmp[0]).Value);
+                Matrix this2 = new Matrix(SplitMatrix(tmp[tmp.Length - 1]).Value);
+                var mlty = Matrix.Multiply(thisM, this2);
+                expression = expression.Replace(match, mlty.Value);
+
+            }
+            return (expression);
+        }
         private static (bool Valid, string Message, string Value) SplitMatrix(string expr)
         {
             int braces = 0;
@@ -253,6 +293,7 @@ namespace ComputerV2_class
                 else
                     return (false, $"format of matric is not correct:  {nExpr[i]}", null);
             }
+            expr = expr.TrimEnd('\n');
             return (true, null, expr);
         }
         
@@ -338,6 +379,20 @@ namespace ComputerV2_class
                 return (pow);
             }
             return (-1);
+        }
+
+        public static void ValidateInput(string input)
+        {
+            var braces = 0;
+            for (var i = 0; i < input.Length; i++)
+            {
+                if (input[i] == '[') braces += 1;
+                if (input[i] == ']') braces -= 1;
+                if (input[i] == '(') braces += 1;
+                if (input[i] == ')') braces -= 1;
+            }
+            if (braces != 0) throw new InvalidExpressionException("Opening braces must have a corresponding closing brace.");;
+            if (Regex.IsMatch(input, @"([\=\%\+\-\/]{2,})|([\*]{3,})")) throw new InvalidExpressionException("Too many Repeating signs.");
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 using ComputerV2_class.Exceptions;
+
 namespace ComputerV2_class
 {
     public class Maths
@@ -7,8 +8,8 @@ namespace ComputerV2_class
         //throws InvalidExpressionException
         public static string Calculate(string expression)
         {
-            var matrix = Parser.MatrixManipulation(expression);
-            if (!matrix.Found)
+            var matrix = Parse.MatrixManipulation(expression);
+            if (!matrix.Found && matrix.Message == null)
             {
                 if (Regex.IsMatch(expression, @"[\*]{2,}"))
                     throw new InvalidExpressionException("Input Error");

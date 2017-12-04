@@ -19,7 +19,7 @@ namespace ComputerV2_class
             MyMatrix = tmp;
             if (tmp.Length > 1)
             {
-                _dimentions.Rows = tmp.Length - 1;
+                _dimentions.Rows = tmp.Length;
                 var m = tmp[0].Split(',');
                 _dimentions.Columns = m.Length;
             }
@@ -59,6 +59,7 @@ namespace ComputerV2_class
             {
                 ret += m != ""?$"[{m}]\n":"";
             }
+            ret = ret.TrimEnd('\n');
             return ret;
         }
         
@@ -67,7 +68,7 @@ namespace ComputerV2_class
 
             var ret = "";
             int rowCounter = 0, columnCounter = 0;
-            if (m1.Dimentions.Columns != m2.Dimentions.Rows) return (false, "Matrics cannot be multiplied", ret);
+            if (m1.Dimentions.Columns != m2.Dimentions.Rows) throw new InvalidMatrixException("Matrices cannot be multipled together.");
             for (var i = 0; i < m1.Dimentions.Rows; i++)
             {
 

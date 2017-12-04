@@ -33,13 +33,12 @@ namespace ComputerV2
                         Console.WriteLine("Missing assignment operator.");
                     else
                     {
-                        if (Regex.IsMatch(curr, @"([\=]{2,}|[\-]{2,}|[\%]{2,}|[\/]{2,}|[\+]{2,}|[\?]{2,})|[\*]{3,}"))
-                            throw new InvalidExpressionException("Input Error");
+                        Parse.ValidateInput(curr);
                         string[] sTmp = Regex.Split(curr.Replace(" ", ""), @"\=");
                         //assignment
                         if (!sTmp[1].Contains("?"))
                         {
-                            var parse = Parser.Assign(sTmp[0], sTmp[1], ref variables, ref functions);
+                            var parse = Parse.Assign(sTmp[0], sTmp[1], ref variables, ref functions);
                             if (!(parse.Success)) Console.WriteLine(parse.Message);
                             else Console.WriteLine($"{parse.Value}");
                         }
@@ -48,9 +47,9 @@ namespace ComputerV2
                         else
                         {
                             if (sTmp[1] != "?") throw new InvalidExpressionException("Input Error");
-                            var sub = Parser.Substitute(sTmp[0], functions, variables, "");
+                            var sub = Parse.Substitute(sTmp[0], functions, variables, "");
                             if (sub.Success) Console.WriteLine($"{Maths.Calculate(sub.Value)}");
-                            else Console.WriteLine(Parser.Substitute(sTmp[0], functions, variables, "").Message);
+                            else Console.WriteLine(Parse.Substitute(sTmp[0], functions, variables, "").Message);
 
                         }
                     }
