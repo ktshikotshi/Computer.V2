@@ -245,22 +245,26 @@ namespace ComputerV2_class
 
         public static string ManMatrix(string expression)
         {
-            var regex = new Regex(@"((\d+([\.,]\d+)?)\*(\[.*\](\n)?))|((\[.*\](\n)?)\*(\d+([\.,]\d+)?))");
+            var regex = new Regex(@"((\d+([\.,]\d+)?)(\*)(\[(.*?)\](\n)?)+)");
+            if (Regex.IsMatch(expression, @"[1]\*"))
+                expression = expression.Replace("1*", "");
             while (regex.IsMatch(expression))
             {
                 var match = regex.Match(expression).Value;
-                var tmp = match.Split('*');
+                var  m2 = match;
+                var tmp = m2.Split('*');
                 var scalar = tmp[0].Contains("[") ? Decimal.Parse(tmp[tmp.Length - 1]) : Decimal.Parse(tmp[0]);
                 var mtrxVal = tmp[0].Contains("[") ? SplitMatrix(tmp[0]).Value : SplitMatrix(tmp[tmp.Length - 1]).Value;
                 var mtrx = new Matrix(mtrxVal);
                 expression = expression.Replace(match, Matrix.ScalarMultiply(scalar.ToString(), mtrx));
                 
             }
-            regex = new Regex(@"((\[.*\](\n)?)+\*\*(\[.*\](\n)?)+(?=[\*]))");
+            regex = new Regex(@"((((\[(.*?)[\]]{1,}(\n|;)?)+)[*]{2})((\[(.*?)[\]]{1,})(\n|\;)?)+)");
             while (regex.IsMatch(expression))
             {
                 var match = regex.Match(expression).Value;
-                var m2 = match.Remove(match.IndexOf('*'), 1);
+                var  m2 = match;
+                m2 = m2.Remove(m2.IndexOf('*'), 1);
                 var tmp = m2.Split('*');
                 Matrix thisM = new Matrix(SplitMatrix(tmp[0]).Value);
                 Matrix this2 = new Matrix(SplitMatrix(tmp[tmp.Length - 1]).Value);
@@ -282,7 +286,7 @@ namespace ComputerV2_class
             if (braces != 0) throw new InvalidMatrixException($"Braces are incomplete :  {expr}");
             if (Regex.IsMatch(expr, @"\]\[")) throw new InvalidMatrixException($"Missing ; :  {expr}");
             expr = Regex.Replace(expr, @"\[|\]", "");
-            var nExpr = Regex.Split(expr, @"[\n]|[;]");
+            var nExpr = Regex.Split(expr, @"[\n]|\;");
             expr = "";
             for (var i = 0; i < nExpr.Length; i++)
             {
