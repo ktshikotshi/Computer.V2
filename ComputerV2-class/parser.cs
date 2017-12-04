@@ -245,7 +245,7 @@ namespace ComputerV2_class
 
         public static string ManMatrix(string expression)
         {
-            var regex = new Regex(@"((\d+([\.,]\d+)?)(\*)(\[(.*?)\](\n)?)+)");
+            var regex = new Regex(@"((\d+([\.,]\d+)?)(\*)(\[(.*?)[\]]{1,}(\n)?)+)");
             if (Regex.IsMatch(expression, @"[1]\*"))
                 expression = expression.Replace("1*", "");
             while (regex.IsMatch(expression))
