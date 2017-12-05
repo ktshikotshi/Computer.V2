@@ -12,8 +12,8 @@ namespace ComputerV2_class
         private bool _dgreeStatus;
         private string _out;
         private char _termChar = 'X';
-        const string RgxPar = @"^(\d+\,)?\d+\*[a-z]\^\d$";
-        private string _polynomia;
+        private const string RgxPar = @"^(\d+\,)?\d+\*[a-z]\^\d$";
+        private readonly string _polynomia;
         
         public Polynomial(string poly)
         {
@@ -47,17 +47,14 @@ namespace ComputerV2_class
             {
                 if (!str.Contains("^")) continue;
                 var strt = str.IndexOf('^') + 1;
-                var tmp = 0;
-                if (!TryParse(str.Substring(strt), out tmp)) continue;
+                if (!TryParse(str.Substring(strt), out int tmp)) continue;
                 double getval = 0;
                 if (str.Contains("*"))
                     TryParse(str.Substring(0, str.IndexOf('*')), out getval);
                 else
                     return (false);
                 if (tmp > degree && getval != 0)
-                {
                     degree = tmp;
-                }
             }
             _dgree = degree;
             return (degree <= 2);
@@ -69,9 +66,7 @@ namespace ComputerV2_class
             var natural = new string[4, 2];
 
             foreach (var str in expr)
-            {
                 exprLis.Add(str);
-            }
             short indx = 0;
 
             foreach (var str in exprLis)
@@ -109,13 +104,9 @@ namespace ComputerV2_class
             for (var i = indx + 1; i < exprLis.Count; i++)
             {
                 if (exprLis[i].ToString().Contains("-"))
-                {
                     exprLis[i] = "+";
-                }
                 else if (exprLis[i].ToString().Contains("+"))
-                {
                     exprLis[i] = "-";
-                }
             }
             exprLis.Remove("=");
             exprLis.Add("=");
@@ -126,14 +117,12 @@ namespace ComputerV2_class
 
         private void MergeDuplicates(ref string[,] arr, ArrayList exprLis, int i, int arrLoc)
         {
-            double val1 = 0;
-            double val2 = 0;
-            int v1Loc = arr[arrLoc, 1].IndexOf('^');
-            int v2Loc = exprLis[i].ToString().IndexOf('^');
+            var v1Loc = arr[arrLoc, 1].IndexOf('^');
+            var v2Loc = exprLis[i].ToString().IndexOf('^');
 
             //check if the format of each term matches the format required for calculation
-            if ((!TryParse(arr[arrLoc, 1].Substring(0, v1Loc >= 2 && Regex.IsMatch(arr[arrLoc, 1].ToString(),RgxPar, RegexOptions.IgnoreCase) ? v1Loc - 2 : 0), out val1) ||
-                !TryParse(exprLis[i].ToString().Substring(0, v2Loc >= 2 && Regex.IsMatch(arr[arrLoc, 1].ToString(), RgxPar, RegexOptions.IgnoreCase) ? v2Loc - 2 : 0), out val2)))
+            if ((!TryParse(arr[arrLoc, 1].Substring(0, v1Loc >= 2 && Regex.IsMatch(arr[arrLoc, 1].ToString(),RgxPar, RegexOptions.IgnoreCase) ? v1Loc - 2 : 0), out int val1) ||
+                !TryParse(exprLis[i].ToString().Substring(0, v2Loc >= 2 && Regex.IsMatch(arr[arrLoc, 1].ToString(), RgxPar, RegexOptions.IgnoreCase) ? v2Loc - 2 : 0), out int val2)))
             {
                 //stop execution, if the term is the wrong format (write exception for this)
                 Console.WriteLine("format for term {0} is not correct, please fix it and try again.", exprLis[i].ToString());
@@ -141,25 +130,19 @@ namespace ComputerV2_class
                 return ;
             }
             if (arr[arrLoc, 0].Contains("-"))
-            {
                 val1 *= -1;
-            }
             if (exprLis[i - 1].ToString().Contains("-"))
-            {
                 val2 *= -1;
-            }
             if (val1 + val2 < 0)
             {
                 arr[arrLoc, 0] = "-";
                 arr[arrLoc, 1] = ((val1 + val2) * -1).ToString() + Regex.Match(arr[arrLoc, 1].ToString(), @"\*[a-z]\^\d$", RegexOptions.IgnoreCase);
             }
             else
-            {
                 arr[arrLoc, 1] = (val1 + val2).ToString(CultureInfo.CurrentCulture) + Regex.Match(arr[arrLoc, 1].ToString(), @"\*[a-z]\^\d$", RegexOptions.IgnoreCase);
-            }
         }
         
-        private double GetVal(string s,string s1)
+        private static double GetVal(string s,string s1)
         {
             double var = 0;
             var tmp = Convert.ToDouble( s1 + Regex.Match(s, @"^(\d+\,)?\d+", RegexOptions.IgnoreCase));
@@ -171,31 +154,30 @@ namespace ComputerV2_class
         {
             var natural = new string[8];
             double[] coeff = { 0, 0, 0};
-            int eq = 0;
             expr = NormRgx(expr);
             if (_dgreeStatus == false)
                 return expr;
             for (var i = 0; i < expr.Length; i++)
             {
                 if (expr[i] == "=")
-                    eq = i;
-                if (expr[i].Contains("^")) {
-                    if (Regex.IsMatch(expr[i], RgxPar, RegexOptions.IgnoreCase))
-                    {
-                        _termChar = expr[i][expr[i].IndexOf('*') + 1];
-                        if (expr[i].Contains("^0"))
-                            coeff[2] += GetVal(expr[i], i > 0 ? (expr[i - 1] == "-" ? "-" : "+") : "+");
-                        else if (expr[i].Contains("^1")) {
-                            coeff[1] += GetVal(expr[i], i > 0 ? (expr[i - 1] == "-" ? "-" : "+") : "+"); }
-                        else if (expr[i].Contains("^2"))
-                            coeff[0] += GetVal(expr[i], i > 0 ? (expr[i - 1] == "-" ? "-" : "+") : "+");
-                    }
-                    else
-                    {
-                        _dgreeStatus = false;
-                        Console.WriteLine("the term {0} is not valid", expr[i]);
-                        return (natural);
-                    }
+                {
+                }
+                if (!expr[i].Contains("^")) continue;
+                if (Regex.IsMatch(expr[i], RgxPar, RegexOptions.IgnoreCase))
+                {
+                    _termChar = expr[i][expr[i].IndexOf('*') + 1];
+                    if (expr[i].Contains("^0"))
+                        coeff[2] += GetVal(expr[i], i > 0 ? (expr[i - 1] == "-" ? "-" : "+") : "+");
+                    else if (expr[i].Contains("^1")) {
+                        coeff[1] += GetVal(expr[i], i > 0 ? (expr[i - 1] == "-" ? "-" : "+") : "+"); }
+                    else if (expr[i].Contains("^2"))
+                        coeff[0] += GetVal(expr[i], i > 0 ? (expr[i - 1] == "-" ? "-" : "+") : "+");
+                }
+                else
+                {
+                    _dgreeStatus = false;
+                    Console.WriteLine("the term {0} is not valid", expr[i]);
+                    return (natural);
                 }
             }
             natural[0] = coeff[0] >= 0 ? "+" : "-";
@@ -293,17 +275,17 @@ namespace ComputerV2_class
         private void Monomialtypes(string[] expr)
         {
             double a = 0;
-            for (var i = 0; i < expr.Length; i++)
+            foreach (var t in expr)
             {
-                if (!expr[i].Contains("^0")) continue;
-                TryParse(expr[i].Substring(0, expr[i].IndexOf('*')), out a);
+                if (!t.Contains("^0")) continue;
+                TryParse(t.Substring(0, t.IndexOf('*')), out a);
             }
             if (a == 0) _out += "\nAll real numbers are a solution\n";
             else _out += "The monomial has no solutuins\n";
         }
 
         //find lowest common denominator
-        private string FractionView(double a,  double b)
+        private static string FractionView(double a,  double b)
         {
                 for (var i = b; i > 0; i--)
                 {
@@ -311,54 +293,49 @@ namespace ComputerV2_class
                     a /= i;
                     b /= i;
                 }
-                if (a % 1 == 0 && b % 1 == 0)
-            {
-                if (a % b == 0) {return (a / b).ToString("0.###");}
-                else if ((a  >= 0 && b >= 0) || (a < 0 && b < 0)) {return (a >= 0 ? a : a * -1) + "/" + (b >= 0 ? b : b * -1);}
-                else {return "-" + (a >= 0 ? a : a * -1) + "/" + (b >= 0 ? b : b * -1);}
-                }
-            return (a / b).ToString("0.###");
+            if (a % 1 != 0 || b % 1 != 0) return (a / b).ToString("0.###");
+            if (a % b == 0) {return (a / b).ToString("0.###");}
+            else if ((a  >= 0 && b >= 0) || (a < 0 && b < 0)) {return (a >= 0 ? a : a * -1) + "/" + (b >= 0 ? b : b * -1);}
+            else {return "-" + (a >= 0 ? a : a * -1) + "/" + (b >= 0 ? b : b * -1);}
         }
 
         public void PolySolve()
         {
-                var expr = Helper.Split(_polynomia);
-                //check to see if the equation is in the natural form
-                expr = ManageNaturalForm(expr);
-                _dgreeStatus = GetDegree(expr);
-                //expr = Functions.NormaliseFunc(_polynomia);
-                expr = ReduceRgx(expr);
-                if (_dgree > 2)
+            var expr = Helper.Split( _polynomia);
+            //check to see if the equation is in the natural form
+            expr = ManageNaturalForm(expr);
+            _dgreeStatus = GetDegree(expr);
+            expr = ReduceRgx(expr);
+            if (_dgree > 2)
+            {
+                _out = ("The polynomial degree is stricly greater than 2, I can't solve.\n");
+                return ;
+            }
+            if (!_dgreeStatus)
+                _out = "Equation is invalid.";
+            else
+            {
+                if (_dgree > -1)
+                    _out += (string.Join(" ", expr).TrimStart('+', ' ')).Replace("*", "").ToLower();
+                switch (_dgree)
                 {
-                    _out = ("The polynomial degree is stricly greater than 2, I can't solve.\n");
-                    return ;
+                    case -1:
+                        _out = "Expression is not in the correct format.";
+                        break;
+                    case 2:
+                        QuadraticEq(expr);
+                        break;
+                    case 1:
+                        BinomialSolve(expr);
+                        break;
+                    case 0:
+                        Monomialtypes(expr);
+                        break;
+                    default:
+                        _out = "Please review your input and try again";
+                        break;
                 }
-                if (_dgreeStatus)
-                {
-                        if (_dgree > -1)
-                        {
-                            _out += (string.Join(" ", expr).TrimStart('+',' ')).Replace("*", "").ToLower();
-                        }
-                        switch (_dgree)
-                    {
-                        case -1:
-                            _out = "Expression is not in the correct format.";
-                            break;
-                        case 2:
-                            QuadraticEq(expr);
-                            break;
-                        case 1:
-                            BinomialSolve(expr);
-                            break;
-                        case 0:
-                            Monomialtypes(expr);
-                            break;
-                        default:
-                            _out = "Please review your input and try again";
-                            break ;
-                    }
-                }
-                else _out = "Equation is invalid.";
+            }
         }
 
         public string GetOut() { return (_out); }

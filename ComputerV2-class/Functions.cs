@@ -36,18 +36,16 @@ namespace ComputerV2_class
             }
             expression = Maths.Calculate(expression);
             expression = newExpression != "" ? $"{newExpression}{(expression != ""? (expression[0] != '+' && expression[0] != '-'? "+": "") :"")}{expression}" : expression;
-            if (braceMatches.Count > 0)
+            if (braceMatches.Count <= 0) return (expression);
             {
                 var expr = "";
                 for (var i = braceMatches.Count - 1; i >= 0; i--)
                 {
                     expr += braceMatches[i].Value;
                 }
-                if (expr.Length > 0)
-                {
-                    if (expr[0] == '*') { expression += expr; }
-                    else { expression = expr + expression; }
-                }
+                if (expr.Length <= 0) return (expression);
+                if (expr[0] == '*') { expression += expr; }
+                else { expression = expr + expression; }
             }
             return (expression);
         }
@@ -55,39 +53,36 @@ namespace ComputerV2_class
         private static int HighestPow(ref string expression)
         {
             var regex = new Regex(@"((\-|\+)?\d+([\.]\d+)?)?(\*)?[A-Za-z]+(\^)?((\-)?\d+([\.]\d+)?)?");
-            if (regex.IsMatch(expression))
+            if (!regex.IsMatch(expression)) return (-1);
+            var pow = 0;
+            //manage powers of 0 and 1
             {
-                int pow = 0;
-                //manage powers of 0 and 1
-                {
-                    var pow0Regex = new Regex(@"(\d+([\.]\d+)?)((\*)?[A-Za-z]\^[0])");
-                    //while (pow0Regex.IsMatch(expression))
-                    expression = pow0Regex.Replace(expression, "$1");
-                    var pow1Regex = new Regex(@"(((\-)?\d+([\.]\d+)?)?(\*)?[A-Za-z]+)(\-|\+|$)");
-                    //while (pow1Regex.IsMatch(expression))
-                    expression = pow1Regex.Replace(expression, "$1^1$6");
-                }
-                var matches = regex.Matches(expression);
-                for(var i = 0; i < matches.Count; i++)
-                {
-                    try
-                    {
-                        string tmpStr = Regex.Match(matches[i].Value, @"((?<=\^)((\-)?\d+([\.]\d+)?))").Value;
-                        //throws format error if the number is not whole and positive.
-                        int tmp = int.Parse(tmpStr);
-                        if (tmp < 0)
-                            throw new FormatException();
-                        if (tmp > pow)
-                            pow = tmp;
-                    }
-                    catch(FormatException)
-                    {
-                        throw new InvalidExpressionException("Power of Polinomial is not of correct format");
-                    }
-                }
-                return (pow);
+                var pow0Regex = new Regex(@"(\d+([\.]\d+)?)((\*)?[A-Za-z]\^[0])");
+                //while (pow0Regex.IsMatch(expression))
+                expression = pow0Regex.Replace(expression, "$1");
+                var pow1Regex = new Regex(@"(((\-)?\d+([\.]\d+)?)?(\*)?[A-Za-z]+)(\-|\+|$)");
+                //while (pow1Regex.IsMatch(expression))
+                expression = pow1Regex.Replace(expression, "$1^1$6");
             }
-            return (-1);
+            var matches = regex.Matches(expression);
+            for(var i = 0; i < matches.Count; i++)
+            {
+                try
+                {
+                    var tmpStr = Regex.Match(matches[i].Value, @"((?<=\^)((\-)?\d+([\.]\d+)?))").Value;
+                    //throws format error if the number is not whole and positive.
+                    var tmp = int.Parse(tmpStr);
+                    if (tmp < 0)
+                        throw new FormatException();
+                    if (tmp > pow)
+                        pow = tmp;
+                }
+                catch(FormatException)
+                {
+                    throw new InvalidExpressionException("Power of Polinomial is not of correct format");
+                }
+            }
+            return (pow);
         }
     }
 }
