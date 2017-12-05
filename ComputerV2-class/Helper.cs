@@ -1,4 +1,5 @@
 ﻿using System.Text.RegularExpressions;
+using ComputerV2_class.Exceptions;
 
 namespace ComputerV2_class
 {
@@ -38,6 +39,39 @@ namespace ComputerV2_class
                 prev = v;
             }
             return ret;
+        }
+        
+        public static void ValidateInput(string input)
+        {
+            if (Regex.IsMatch(input, @"(([a-zA-Z]+(\(.*\))?)(\s+|\r+)([a-z-A-Z]+(\(.*\))?))"))
+                throw new InvalidExpressionException("Invalid Use of Variables."); 
+            var braces = 0;
+            input = input.Replace(" ", "");
+            if (Regex.IsMatch(input, @"^\=\?$"))
+                throw new InvalidExpressionException("Cannot query nothing."); 
+            if (Regex.IsMatch(input, @"\=$"))
+                throw new InvalidExpressionException("Cannot assing something to nothing"); 
+            foreach (char t in input)
+            {
+                switch (t)
+                {
+                    case '[':
+                        braces += 1;
+                        break;
+                    case ']':
+                        braces -= 1;
+                        break;
+                    case '(':
+                        braces += 1;
+                        break;
+                    case ')':
+                        braces -= 1;
+                        break;
+                }
+            }
+            if (braces != 0) throw new InvalidExpressionException("Opening braces must have a corresponding closing brace.");;
+            if (Regex.IsMatch(input, @"([=]{2,})|[?]{2,}|(\=(\+|\*\/\%)|(\+|\*\/\%)\=)|(\+\-|\-\+)|\*\*\*|((\*)?(\%|\/)(\*)?)"))
+                throw new InvalidExpressionException("Too many Repeating signs.");
         }
     }
 }

@@ -243,21 +243,21 @@ namespace ComputerV2_class
             a2 = 2 * (a);
             if (b3 - ac4 > 0)
             {
-                //sqRoot = MyMaths.Sqrt(b3 - (ac4));
+                sqRoot = Maths.Sqrt(b3 - (ac4));
                 x1 = (b2 + sqRoot) / a2;
                 x2 = (b2 - sqRoot) / a2;
                 _out += $"\nSolutions on R:\n{FractionView((b2 + sqRoot), a2)}\n{FractionView((b2 - sqRoot), a2)}\n";                
             }
             else if (b3 - ac4 < 0)
             {
-                //sqRoot = MyMaths.Sqrt((b3 - (ac4)) * -1);
+                sqRoot = Maths.Sqrt((b3 - (ac4)) * -1);
                 x1 = sqRoot/a2;
                 x2 = sqRoot/a2;
                 _out += $"\nSolutions C:\n{FractionView(b2, a2)} + {FractionView(sqRoot, a2)} * i\n{FractionView(b2, a2)} - {FractionView(sqRoot, a2)} * i\n";
             }
             else
             {
-                //sqRoot = MyMaths.Sqrt(b3 - (ac4));
+                //sqRoot = Maths.Sqrt(b3 - (ac4));
                 x1 = (b2 + sqRoot) / a2;
                 _out += $"\nA solution on R:\n{FractionView((b2 + sqRoot), a2)}\n";
             }

@@ -3,32 +3,27 @@ using ComputerV2_class.Exceptions;
 
 namespace ComputerV2_class
 {
-    public class Maths
+    public static class Maths
     {
         //throws InvalidExpressionException
         public static string Calculate(string expression)
         {
-            var matrix = Parse.MatrixManipulation(expression);
-            if (!matrix.Found && matrix.Message == null)
-            {
-                if (Regex.IsMatch(expression, @"[\*]{2,}"))
-                    throw new InvalidExpressionException("Input Error");
-                expression = expression.Replace(" ", "");
-                Brackets(ref expression);
-                Pow(ref expression);
-                DivideMultiply(ref expression);
-                Imaginary(ref expression);
-                Addition(ref expression);
-                expression = expression.Replace(" ", "");
-                if (expression.Length > 0)
-                {
-                    if (expression[0] == '+')
-                        expression = expression.Substring(1);
-                    if (expression[expression.Length - 1] == '+')
-                        expression = expression.Substring(0, expression.Length - 1);
-                }
-            }
-            else expression = matrix.Value;
+            var matrix = Matrix.MatrixManipulation(expression);
+            if (matrix.Found) return (matrix.Value);
+            if (Regex.IsMatch(expression, @"\*\*"))
+                throw new InvalidExpressionException("Input Error");
+            expression = expression.Replace(" ", "");
+            Brackets(ref expression);
+            Pow(ref expression);
+            DivideMultiply(ref expression);
+            Imaginary(ref expression);
+            Addition(ref expression);
+            expression = expression.Replace(" ", "");
+            if (expression.Length <= 0) return (expression);
+            if (expression[0] == '+')
+                expression = expression.Substring(1);
+            if (expression[expression.Length - 1] == '+')
+                expression = expression.Substring(0, expression.Length - 1);
             return (expression);
         }
 
@@ -52,12 +47,12 @@ namespace ComputerV2_class
                 var exp = match.Split('^');
                 try
                 {
-                    double value = double.Parse(exp[0]);
+                    var value = double.Parse(exp[0]);
                     //will throw formateException if number is not whole and positive.
-                    int count = int.Parse(exp[1]);
+                    var count = int.Parse(exp[1]);
                     if (count < 0)
                         throw new System.FormatException();
-                    double res = value > 0? value: -1 * value;
+                    var res = value > 0? value: -1 * value;
                     for (var i = 1; i < count; i++) res *= value;
                     //prevent exponential notation to a degree, to big of a number will have a result of infinity;
                     expression = expression.Replace(match, res.ToString("0." + new string('#', 9999)));
@@ -76,9 +71,9 @@ namespace ComputerV2_class
                     var match = regex.Match(expression).Value;
                     match = ReplaceDecimalPoint(match);
                     var exp = match.Split('^');
-                    double value = double.Parse(Regex.Replace(exp[0], @"\*|i", ""));
+                    var value = double.Parse(Regex.Replace(exp[0], @"\*|i", ""));
                     //will throw formateException if number is not whole and positive.
-                    int count = int.Parse(exp[1]);
+                    var count = int.Parse(exp[1]);
                     if (count < 0)
                         throw new System.FormatException();
                     if (count == 0)
@@ -90,15 +85,15 @@ namespace ComputerV2_class
                                 value.ToString("0." + new string('#', 9999)));
                             break;
                         case 1:
-                            expression = expression.Replace(match, 
+                            expression = expression.Replace(match,
                                 $"{value.ToString("0." + new string('#', 9999))}*i");
                             break;
                         case 2:
-                            expression = expression.Replace(match, 
+                            expression = expression.Replace(match,
                                 (value * -1).ToString("0." + new string('#', 9999)));
                             break;
                         case 3:
-                            expression = expression.Replace(match, 
+                            expression = expression.Replace(match,
                                 $"{(value * -1).ToString("0." + new string('#', 9999))}*i");
                             break;
                     }
@@ -141,21 +136,17 @@ namespace ComputerV2_class
         private static void Imaginary(ref string expression)
         {
             var regex = new Regex(@"((\-|\+)?\d+([\.,]\d+)?)(\*)?i");
-            if (regex.IsMatch(expression))
+            if (!regex.IsMatch(expression)) return;
+            var res = 0d;
+            while(regex.IsMatch(expression))
             {
-                var res = 0d;
-                while(regex.IsMatch(expression))
-                {
-                    var match = regex.Match(expression).Value;
-                    var nmb = Regex.Match(match, @"((\-|\+)?\d+([\.,]\d+)?)").Value;
-                    res += double.Parse(nmb);
-                    expression = expression.Replace(match, "");
-                }
-                if (res != 0)
-                {
-                   expression = expression =="" || Regex.IsMatch(expression,@"^(\+)|(\-)")? $"{res}*i" + expression: $"{res}*i+" + expression;
-                }
+                var match = regex.Match(expression).Value;
+                var nmb = Regex.Match(match, @"((\-|\+)?\d+([\.,]\d+)?)").Value;
+                res += double.Parse(nmb);
+                expression = expression.Replace(match, "");
             }
+            if (res == 0) return;
+            expression = expression =="" || Regex.IsMatch(expression,@"^(\+)|(\-)")? $"{res}*i" + expression: $"{res}*i+" + expression;
         }
 
         private static void Addition(ref string expression)
@@ -194,14 +185,12 @@ namespace ComputerV2_class
                     expr = expr[0] != '-' && expr[0] != '+' ? $"{braceMatches[i].Value}+{expr}" : braceMatches[i].Value + expr;
                 }
             }
-            if (expression.Length > 0)
+            if (expression.Length <= 0) return;
+            if (expression[expression.Length - 1] != '%' && expression[expression.Length - 1] != '/' && expression[expression.Length - 1] != '*')
             {
-                if (expression[expression.Length - 1] != '%' && expression[expression.Length - 1] != '/' && expression[expression.Length - 1] != '*')
-                {
-                    expression = expression[0] != '-' && expression[0] != '+' ? $"{expr}+{expression}" : expression + expr;
-                }
-                else expression += expr;
+                expression = expression[0] != '-' && expression[0] != '+' ? $"{expr}+{expression}" : expression + expr;
             }
+            else expression += expr;
         }
 
         private static string ManageNegative(string expression)
@@ -221,7 +210,7 @@ namespace ComputerV2_class
         
         //find the square root of the parsed double precision floating point number
         //this uses the longest method to find the root, it is also the easiest method to understand.
-        public double Sqrt(double x)
+        public static double Sqrt(double x)
         {
             if (x <= 0)
                 return (x);

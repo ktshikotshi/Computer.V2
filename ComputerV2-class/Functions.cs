@@ -18,20 +18,20 @@ namespace ComputerV2_class
             {
                 for (var i = pow; i > 0; i--)
                 {
-                    var regex = new Regex(@"(?<!(\())((\-|\+)?(\d+([\.]\d+)?)?(\*)?[A-Za-z]+(\^0))(?!\))");
+                    var regex = new Regex(@"(?<!(\())((\-|\+)?(\d+([\.]\d+)?)?(\*)?[A-Za-z]+(\^" + i + @"))(?!\))");
                     var coeff = 0d;
                     var variable = "";
                     while (regex.IsMatch(expression))
                     {
                         var match = regex.Match(expression).Value;
-                        var r2 = new Regex(@"(\-)?\d+([\.]\d+)?");
+                        var r2 = new Regex(@"((\-)?\d+([\.]\d+)?)(?=(\*)?[a-zA-Z]+)");
                         var tmp = r2.Match(match).Value != ""? r2.Match(match).Value : "1" ;
                         coeff += double.Parse(tmp);
                         variable = Regex.Match(match, @"[A-Za-z]+").Value;
                         expression = regex.Replace(expression, "", 1);
                     }
-                    if (i != 1) newExpression += coeff != 0? $"{(coeff > 0 ? (newExpression != ""? $"+{coeff}": $"{coeff}") : $"{coeff}")}{variable}^{i}" : "";
-                    else newExpression += coeff != 0 ? $"{(coeff > 0 ? (newExpression != "" ? $"+{coeff}" : $"{coeff}") : $"{coeff}")}{variable}" : "";
+                    if (i != 1) newExpression += coeff != 0? $"{(coeff > 0 ? (newExpression != ""? $"+{coeff}": $"{coeff}") : $"{coeff}")}*{variable}^{i}" : "";
+                    else newExpression += coeff != 0 ? $"{(coeff > 0 ? (newExpression != "" ? $"+{coeff}" : $"{coeff}") : $"{coeff}")}*{variable}" : "";
                 }
             }
             expression = Maths.Calculate(expression);

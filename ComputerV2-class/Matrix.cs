@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text.RegularExpressions;
+using System.Threading;
 using ComputerV2_class.Exceptions;
 
 namespace ComputerV2_class
@@ -7,12 +8,12 @@ namespace ComputerV2_class
     public class Matrix
     {
         private readonly (int Columns, int Rows) _dimentions;
-        public string[] MyMatrix { get; }
-        public double[,] IntMatrix { get; }
+        private string[] MyMatrix { get; }
+        private double[,] IntMatrix { get; }
 
-        public (int Columns, int Rows) Dimentions => _dimentions;
+        private (int Columns, int Rows) Dimentions => _dimentions;
 
-        public Matrix(string expr)
+        private Matrix(string expr)
         {
             expr = Regex.Replace(expr, @"\[|\]", "");
             var tmp = expr.Split('\n');
@@ -40,7 +41,7 @@ namespace ComputerV2_class
 
         }
 
-        public static string ScalarMultiply(string scal, Matrix mtrx)
+        private static string ScalarMultiply(string scal, Matrix mtrx)
         {
             var mat = mtrx.MyMatrix;
             var ret = "";
@@ -62,8 +63,8 @@ namespace ComputerV2_class
             ret = ret.TrimEnd('\n');
             return ret;
         }
-        
-        public static (bool Success, string Message, string Value) Multiply(Matrix m1, Matrix m2)
+
+        private static string Multiply(Matrix m1, Matrix m2)
         {
 
             var ret = "";
@@ -90,7 +91,7 @@ namespace ComputerV2_class
                 ret += "\n";
             }
             ret = CalcMatrix(ret, m1.Dimentions.Rows, m2.Dimentions.Columns);
-            return (true, null, ret);
+            return (ret);
         }
         /*
          * a = [[0,3,5];[5,5,2]]
@@ -121,6 +122,67 @@ namespace ComputerV2_class
                 ret += "]\n";
             }
             return ret;
+        }
+        
+        public static (bool Found, string Value) MatrixManipulation(string expr)
+        {
+            if (!expr.Contains("[")) return (false, expr);
+            expr = ManMatrix(expr);
+            var split = SplitMatrix(expr);
+            //will throw an exceptoion if the numbers are not correctly formatted.
+            {
+                var nMatrix = new Matrix(split);
+            }
+            return (true, expr);
+        }
+
+        private static string ManMatrix(string expression)
+        {
+            var regex = new Regex(@"((\d+([\.,]\d+)?)(\*)(\[(.*?)[\]]{1,}(\n)?)+)");
+            if (Regex.IsMatch(expression, @"[1]\*"))
+                expression = expression.Replace("1*", "");
+            while (regex.IsMatch(expression))
+            {
+                var match = regex.Match(expression).Value;
+                var  m2 = match;
+                var tmp = m2.Split('*');
+                var scalar = tmp[0].Contains("[") ? Decimal.Parse(tmp[tmp.Length - 1]) : Decimal.Parse(tmp[0]);
+                var mtrxVal = tmp[0].Contains("[") ? SplitMatrix(tmp[0]) : SplitMatrix(tmp[tmp.Length - 1]);
+                var mtrx = new Matrix(mtrxVal);
+                expression = expression.Replace(match, Matrix.ScalarMultiply(scalar.ToString(), mtrx));
+                
+            }
+            regex = new Regex(@"((((\[(.*?)[\]]{1,}(\n|;)?)+)[*]{2})((\[(.*?)[\]]{1,})(\n|\;)?)+)");
+            while (regex.IsMatch(expression))
+            {
+                var match = regex.Match(expression).Value;
+                var  m2 = match;
+                m2 = m2.Remove(m2.IndexOf('*'), 1);
+                var tmp = m2.Split('*');
+                var thisM = new Matrix(SplitMatrix(tmp[0]));
+                var this2 = new Matrix(SplitMatrix(tmp[tmp.Length - 1]));
+                var mlty = Multiply(thisM, this2);
+                expression = expression.Replace(match, mlty);
+            }
+            return (expression);
+        }
+        private static string SplitMatrix(string expr)
+        {
+            if (Regex.IsMatch(expr, @"\]\[")) throw new InvalidMatrixException($"Missing ; :  {expr}");
+            expr = Regex.Replace(expr, @"\[|\]", "");
+            var nExpr = Regex.Split(expr, @"[\n]|\;");
+            expr = "";
+            for (var i = 0; i < nExpr.Length; i++)
+            {
+                
+                nExpr[i] = nExpr[i] == "" ? "" : $"[{nExpr[i]}]";
+                if (Regex.IsMatch(nExpr[i], @"^\[(((\-)?\d+([\.,]\d+)?)?([,])?)+\]$") || nExpr[i] == "")
+                    expr += nExpr[i] == ""? "" : $"{nExpr[i]}\n";
+                else
+                    throw new InvalidMatrixException($"format of matric is not correct:  {nExpr[i]}");
+            }
+            expr = expr.TrimEnd('\n');
+            return (expr);
         }
     }
 }
