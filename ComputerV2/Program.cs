@@ -57,9 +57,9 @@ namespace ComputerV2
                                         var poly = new Polynomial($"{sub}={rhsY}");
                                         poly.PolySolve();
                                         Console.WriteLine(poly.GetOut().TrimEnd('\n'));
-                                        continue;
+                                        
                                     }
-                                    Console.WriteLine($"{Maths.Calculate(sub)}");
+                                    else Console.WriteLine($"{Maths.Calculate(sub)}");
                                 }
                             }
                             break;
