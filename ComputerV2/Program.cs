@@ -46,10 +46,23 @@ namespace ComputerV2
 
                         else
                         {
-                            if (sTmp[1] != "?") throw new InvalidExpressionException("Input Error");
                             var sub = Parse.Substitute(sTmp[0], functions, variables, "");
-                            if (sub.Success) Console.WriteLine($"{Maths.Calculate(sub.Value)}");
-                            else Console.WriteLine(Parse.Substitute(sTmp[0], functions, variables, "").Message);
+                            if (!sub.Success) throw new InvalidExpressionException(sub.Message);
+                            var subVal = "";
+                            if (sTmp[1] != "?")
+                            {
+                                if (!sub.Success) throw new InvalidExpressionException($"Error in query : {sTmp[0]}");
+                                var rhs = sTmp[1].Split('?');
+                                if (rhs.Length != 2) throw new InvalidExpressionException("Error in Query : format should be x+...=y?");
+                                var rhsY = Parse.Substitute(rhs[0], functions, variables, "");
+                                if (!rhsY.Success) throw new InvalidExpressionException($"Error in query : {sub.Value} = {sTmp[1]}");
+                                var poly = new Polynomial($"{sub.Value}={rhsY.Value}");
+                                poly.PolySolve();
+                                subVal = poly.GetOut();
+                                Console.WriteLine(subVal.TrimEnd('\n'));                              
+                            }
+                            else   
+                                Console.WriteLine($"{Maths.Calculate(sub.Value)}");
                         }
                     }
                 }

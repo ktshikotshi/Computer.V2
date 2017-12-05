@@ -218,5 +218,18 @@ namespace ComputerV2_class
                 expression = Regex.Replace(expression, @"([\.])(\d+)", ",$2");
             return (expression);
         }
+        
+        //find the square root of the parsed double precision floating point number
+        //this uses the longest method to find the root, it is also the easiest method to understand.
+        public double Sqrt(double x)
+        {
+            if (x <= 0)
+                return (x);
+            var t = 0.000001;
+            while (t * t < x)
+                t += 0.000001;
+            //return the root with a maximum of 4 decimal places, to preserve accuracy
+            return (double.Parse(t.ToString("0.####")));
+        }
     }
 }

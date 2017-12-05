@@ -237,35 +237,29 @@ namespace ComputerV2_class
                 BinomialSolve(expr);
                 return;
             }
-            _out += "----------\n" + $"a = {a:0.###}, b = {b:0.###}, c = {c:0.###}\n" + "----------\n";
             b2 = b * -1;
             b3 = b * b;
             ac4 = 4 * (a) * (c);
             a2 = 2 * (a);
-            _out += $"{_termChar} = (-({b:0.###}) ± √({b:0.###}^2 - 4({a:0.###})({c:0.###}))) / 2({a:0.###})\n" +
-                    $"{_termChar} = ( {b2:0.###} ± √({b3:0.###} - {(ac4 >= 0 ? ac4 : ac4 * -1):0.###})) / {a2:0.###}\n" +
-                    $"{_termChar} = ( {b2:0.###} ± √({b3 - ac4:0.###})) / {a2:0.###}\n";
             if (b3 - ac4 > 0)
             {
                 //sqRoot = MyMaths.Sqrt(b3 - (ac4));
                 x1 = (b2 + sqRoot) / a2;
                 x2 = (b2 - sqRoot) / a2;
-                _out += $"{_termChar + "\n"} = ({b2:0.###} ± {sqRoot:0.###}) / {a2:0.###}\n" +
-                        $"----------\nDiscriminant is strictly positive, the two solutions are:\n{FractionView((b2 + sqRoot), a2)}\n{FractionView((b2 - sqRoot), a2)}\n";                
+                _out += $"\nSolutions on R:\n{FractionView((b2 + sqRoot), a2)}\n{FractionView((b2 - sqRoot), a2)}\n";                
             }
             else if (b3 - ac4 < 0)
             {
                 //sqRoot = MyMaths.Sqrt((b3 - (ac4)) * -1);
                 x1 = sqRoot/a2;
                 x2 = sqRoot/a2;
-                _out += $"{_termChar} = ({b2:0.###} ± {sqRoot:0.###} * i ) / {a2:0.###}\n{_termChar} = ({b2:0.###} / {a2:0.###}) ± ({sqRoot:0.###} / {a2:0.###}) * i\n" +
-                        $"----------\nDiscriminant is strictly negative, the two solutions are:\n{FractionView(b2, a2)} + {FractionView(sqRoot, a2)} * i\n{FractionView(b2, a2)} - {FractionView(sqRoot, a2)} * i\n";
+                _out += $"\nSolutions C:\n{FractionView(b2, a2)} + {FractionView(sqRoot, a2)} * i\n{FractionView(b2, a2)} - {FractionView(sqRoot, a2)} * i\n";
             }
             else
             {
                 //sqRoot = MyMaths.Sqrt(b3 - (ac4));
                 x1 = (b2 + sqRoot) / a2;
-                _out = $"{_termChar} = ({b2:0.###} ± {sqRoot:0.###}) / {a2:0.###}\n----------\nDiscriminant is null, the solution is:\n{FractionView((b2 + sqRoot), a2)}\n";
+                _out += $"\nA solution on R:\n{FractionView((b2 + sqRoot), a2)}\n";
             }
             
         }
@@ -291,15 +285,9 @@ namespace ComputerV2_class
                     b *= -1;
                 }
             }
-            Console.WriteLine("----------");
-            Console.WriteLine("a = {0:0.###}, b = {1:0.###}", a, b);
-            Console.WriteLine("{0:0.###}*{2}^1 + ({1:0.###}) = 0", a, b, _termChar);
             b *= -1;
-            Console.WriteLine("{0:0.###}*{2}^1 = {1:0.###}", a, b, _termChar);
-            Console.WriteLine("----------");
-            if (a != 0) _out += $"({a:0.###} / {a:0.###}) * {_termChar} = {b:0.###} / {a:0.###}\n" +
-                        $"----------\nthe solution is:\n{FractionView(b, a):0.###}\n";
-            else _out += "Solution is undefined.\n";
+            if (a != 0) _out += $"\nSolution on R:\n{FractionView(b, a):0.###}\n";
+            else _out += "\nSolution is undefined.\n";
             
         }
         private void Monomialtypes(string[] expr)
@@ -310,7 +298,7 @@ namespace ComputerV2_class
                 if (!expr[i].Contains("^0")) continue;
                 TryParse(expr[i].Substring(0, expr[i].IndexOf('*')), out a);
             }
-            if (a == 0) _out += "All real numbers are a solution\n";
+            if (a == 0) _out += "\nAll real numbers are a solution\n";
             else _out += "The monomial has no solutuins\n";
         }
 
@@ -334,23 +322,22 @@ namespace ComputerV2_class
 
         public void PolySolve()
         {
-            if (!(_polynomia.Length >= 2))
-            {
                 var expr = Helper.Split(_polynomia);
                 //check to see if the equation is in the natural form
                 expr = ManageNaturalForm(expr);
                 _dgreeStatus = GetDegree(expr);
+                //expr = Functions.NormaliseFunc(_polynomia);
                 expr = ReduceRgx(expr);
                 if (_dgree > 2)
                 {
-                    _out += ("The polynomial degree is stricly greater than 2, I can't solve.\n");
+                    _out = ("The polynomial degree is stricly greater than 2, I can't solve.\n");
                     return ;
                 }
                 if (_dgreeStatus)
                 {
                         if (_dgree > -1)
                         {
-                            _out += $"Reduced from: {string.Join(" ", expr)}\nPolynomial degree: {_dgree}";
+                            _out += (string.Join(" ", expr).TrimStart('+',' ')).Replace("*", "").ToLower();
                         }
                         switch (_dgree)
                     {
@@ -372,8 +359,6 @@ namespace ComputerV2_class
                     }
                 }
                 else _out = "Equation is invalid.";
-            }
-            else _out = "Arguments are not valid.";
         }
 
         public string GetOut() { return (_out); }

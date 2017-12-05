@@ -45,6 +45,7 @@
   <ItemGroup>
     <Compile Include="Exceptions\InvalidExpressionException.cs" />
     <Compile Include="Exceptions\InvalidMatrixException.cs" />
+    <Compile Include="Functions.cs" />
     <Compile Include="Maths.cs" />
     <Compile Include="Matrix.cs" />
     <Compile Include="Helper.cs" />
