@@ -7,7 +7,7 @@ using static ComputerV2_class.Exceptions.InvalidExpressionException;
 
 namespace ComputerV2_class
 {
-    public static class Parse
+    public static class Parser
     {
         public static string Assign(string expr, string val, ref List<List<string>> vars, ref List<List<string>> funcs)
         {

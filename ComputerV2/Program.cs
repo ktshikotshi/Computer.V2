@@ -42,18 +42,18 @@ namespace ComputerV2
                                 //assignment
                                 if (!sTmp[1].Contains("?"))
                                 {
-                                    var parse = Parse.Assign(sTmp[0], sTmp[1], ref variables, ref functions);
+                                    var parse = Parser.Assign(sTmp[0], sTmp[1], ref variables, ref functions);
                                     Console.WriteLine($"{parse}");
                                 }
                                 //resolution
                                 else
                                 {
-                                    var sub = Parse.Substitute(sTmp[0], functions, variables, "");
+                                    var sub = Parser.Substitute(sTmp[0], functions, variables, "");
                                     if (sTmp[1] != "?")
                                     {
                                         var rhs = sTmp[1].Split('?');
                                         if (rhs.Length != 2) throw new InvalidExpressionException("Error in Query : format should be x+...=y?");
-                                        var rhsY = Parse.Substitute(rhs[0], functions, variables, "");
+                                        var rhsY = Parser.Substitute(rhs[0], functions, variables, "");
                                         var poly = new Polynomial($"{sub}={rhsY}");
                                         poly.PolySolve();
                                         Console.WriteLine(poly.GetOut().TrimEnd('\n'));
