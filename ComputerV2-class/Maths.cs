@@ -44,7 +44,7 @@ namespace ComputerV2_class
 
         private static void Pow(ref string expression)
         {
-            var regex = new Regex(@"((\-)?\d+([\.,]\d+)?)\^((\-)?\d+([\.,]\d+)?)");
+            var regex = new Regex(@"((\-)?\d+([\.,]\d+)?(?=\*i))\^((\-)?\d+([\.,]\d+)?)");
             while (regex.IsMatch(expression))
             {
                 var match = regex.Match(expression).Value;

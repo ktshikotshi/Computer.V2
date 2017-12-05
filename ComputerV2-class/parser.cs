@@ -25,7 +25,7 @@ namespace ComputerV2_class
                 else
                     return (false, Ass.Message, null);
             }
-            rgxStr = @"[a-zA-Z]+";
+            rgxStr = @"^(?<!(\d+([\.,]\d+)?))([a-zA-Z]+)(?!(\d+([\.,]\d+)?))$";
             rgx = new Regex(rgxStr);
             if (rgx.IsMatch(expr))
             {

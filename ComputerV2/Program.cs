@@ -50,7 +50,6 @@ namespace ComputerV2
                             var sub = Parse.Substitute(sTmp[0], functions, variables, "");
                             if (sub.Success) Console.WriteLine($"{Maths.Calculate(sub.Value)}");
                             else Console.WriteLine(Parse.Substitute(sTmp[0], functions, variables, "").Message);
-
                         }
                     }
                 }
