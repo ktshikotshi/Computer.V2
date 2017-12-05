@@ -43,7 +43,7 @@ namespace ComputerV2_class
         
         public static void ValidateInput(string input)
         {
-            if (Regex.IsMatch(input, @"(([a-zA-Z]+(\(.*\))?)(\s+|\r+)([a-z-A-Z]+(\(.*\))?))"))
+            if (Regex.IsMatch(input, @"([a-zA-Z]+(\(.*\))?)(\s+|\r+)([a-zA-Z]+(\(.*\))?)"))
                 throw new InvalidExpressionException("Invalid Use of Variables."); 
             var braces = 0;
             input = input.Replace(" ", "");
@@ -69,8 +69,8 @@ namespace ComputerV2_class
                         break;
                 }
             }
-            if (braces != 0) throw new InvalidExpressionException("Opening braces must have a corresponding closing brace.");;
-            if (Regex.IsMatch(input, @"([=]{2,})|[?]{2,}|(\=(\+|\*\/\%)|(\+|\*\/\%)\=)|(\+\-|\-\+)|\*\*\*|((\*)?(\%|\/)(\*)?)"))
+            if (braces != 0) throw new InvalidExpressionException("Opening braces must have a corresponding closing brace.");
+            if (Regex.IsMatch(input, @"([=]{2,})|[?]{2,}|(\=(\+|\*\/\%)|(\+|\*\/\%)\=)|(\+\-|\-\+)|\*\*\*|(\%\*\*\%|\/\*|\*\/|(\/|\%|\+|\-){2,})"))
                 throw new InvalidExpressionException("Too many Repeating signs.");
         }
     }

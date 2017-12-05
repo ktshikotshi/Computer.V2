@@ -24,7 +24,7 @@ namespace ComputerV2_class
                 var m = tmp[0].Split(',');
                 _dimentions.Columns = m.Length;
             }
-            IntMatrix = new Double[_dimentions.Rows, _dimentions.Columns];
+            IntMatrix = new double[_dimentions.Rows, _dimentions.Columns];
             for (var j = 0; j < _dimentions.Rows; j++) {
                 var rw = tmp[j].Split(',');
                 for (var i = 0; i < _dimentions.Columns; i++)
@@ -93,12 +93,6 @@ namespace ComputerV2_class
             ret = CalcMatrix(ret, m1.Dimentions.Rows, m2.Dimentions.Columns);
             return (ret);
         }
-        /*
-         * a = [[0,3,5];[5,5,2]]
-         * b = [[3,4];[3, -2];[4, -2]]
-         * a=[[4,-1];[2,-1]]
-         * b=[[3,1,0];[2,1,-2]]
-         */
 
         private static string CalcMatrix(string met ,int rows, int columns)
         {
@@ -133,12 +127,12 @@ namespace ComputerV2_class
             {
                 var nMatrix = new Matrix(split);
             }
-            return (true, expr);
+            return (true, split);
         }
 
         private static string ManMatrix(string expression)
         {
-            var regex = new Regex(@"((\d+([\.,]\d+)?)(\*)(\[(.*?)[\]]{1,}(\n)?)+)");
+            var regex = new Regex(@"((\d+([\.,]\d+)?)(\*)(\[(.*?)(\](\n|\;)?){1,})+)");
             if (Regex.IsMatch(expression, @"[1]\*"))
                 expression = expression.Replace("1*", "");
             while (regex.IsMatch(expression))
