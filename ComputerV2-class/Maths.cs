@@ -44,7 +44,7 @@ namespace ComputerV2_class
 
         private static void Pow(ref string expression)
         {
-            var regex = new Regex(@"((\-)?\d+([\.,]\d+)?(?=\*i))\^((\-)?\d+([\.,]\d+)?)");
+            var regex = new Regex(@"((\-)?\d+([\.,]\d+)?)\^((\-)?\d+([\.,]\d+)?)");
             while (regex.IsMatch(expression))
             {
                 var match = regex.Match(expression).Value;
@@ -66,6 +66,48 @@ namespace ComputerV2_class
                 {
                     throw new InvalidExpressionException("Power is of wrong format");
                 }              
+            }
+            //power of an imaginary number.
+            regex = new Regex(@"((\-)?\d+([\.,]\d+)?)(\*)?i\^((\-)?\d+([\.,]\d+)?)");
+            while (regex.IsMatch(expression))
+            {
+                try
+                {
+                    var match = regex.Match(expression).Value;
+                    match = ReplaceDecimalPoint(match);
+                    var exp = match.Split('^');
+                    double value = double.Parse(Regex.Replace(exp[0], @"\*|i", ""));
+                    //will throw formateException if number is not whole and positive.
+                    int count = int.Parse(exp[1]);
+                    if (count < 0)
+                        throw new System.FormatException();
+                    if (count == 0)
+                        expression = expression.Replace(match, "");
+                    switch (count % 4)
+                    {
+                        case 0:
+                            expression = expression.Replace(match,
+                                value.ToString("0." + new string('#', 9999)));
+                            break;
+                        case 1:
+                            expression = expression.Replace(match, 
+                                $"{value.ToString("0." + new string('#', 9999))}*i");
+                            break;
+                        case 2:
+                            expression = expression.Replace(match, 
+                                (value * -1).ToString("0." + new string('#', 9999)));
+                            break;
+                        case 3:
+                            expression = expression.Replace(match, 
+                                $"{(value * -1).ToString("0." + new string('#', 9999))}*i");
+                            break;
+                    }
+                }
+                catch(System.FormatException)
+                {
+                    throw new InvalidExpressionException("Power is of wrong format");
+                } 
+
             }
         }
 
