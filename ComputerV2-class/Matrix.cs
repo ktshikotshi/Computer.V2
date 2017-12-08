@@ -122,6 +122,7 @@ namespace ComputerV2_class
         {
             if (!expr.Contains("[")) return (false, expr);
             expr = ManMatrix(expr);
+            if (Regex.IsMatch(expr, "[a-zA-Z]+")) return (true, expr);
             var split = SplitMatrix(expr);
             //will throw an exceptoion if the numbers are not correctly formatted.
             {
