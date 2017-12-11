@@ -29,7 +29,7 @@ namespace ComputerV2_class
 
         private static void Brackets(ref string expression)
         {
-            var regex = new Regex(@"(?<=\()([^()a-zA-Z]+|(?<Level>\()|(?<Level>\)))+(?(Level)(?!))(?=\))");
+            var regex = new Regex(@"(?<=\()([^()a]+|(?<Level>\()|(?<Level>\)))+(?(Level)(?!))(?=\))");
             while (regex.IsMatch(expression))
             {
                 var match = regex.Match(expression).Value;
