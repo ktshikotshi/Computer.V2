@@ -54,8 +54,9 @@ namespace ComputerV2
                                         var rhs = sTmp[1].Split('?');
                                         if (rhs.Length != 2) throw new InvalidExpressionException("Error in Query : format should be x+...=y?");
                                         var rhsY = Parser.Substitute(rhs[0], functions, variables, "");
-                                        var poly = new Poly($"{sub}={rhsY}");
-                                        poly.Calculate();                                        
+                                        var poly = new Polynomial($"{sub}={rhsY}");
+                                        poly.PolySolve();
+                                        Console.WriteLine(poly.GetOut());
                                     }
                                     else Console.WriteLine($"{Maths.Calculate(sub)}");
                                 }

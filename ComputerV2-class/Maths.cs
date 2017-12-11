@@ -29,7 +29,7 @@ namespace ComputerV2_class
 
         private static void Brackets(ref string expression)
         {
-            var regex = new Regex(@"(?<=\()([^()a]+|(?<Level>\()|(?<Level>\)))+(?(Level)(?!))(?=\))");
+            var regex = new Regex(@"(?<=\()([^()a-zA-Z]+|(?<Level>\()|(?<Level>\)))+(?(Level)(?!))(?=\))");
             while (regex.IsMatch(expression))
             {
                 var match = regex.Match(expression).Value;
@@ -82,19 +82,19 @@ namespace ComputerV2_class
                     {
                         case 0:
                             expression = expression.Replace(match,
-                                value.ToString("0." + new string('#', 9999)));
+                                value.ToString("+#.####;-#.####;0"));
                             break;
                         case 1:
                             expression = expression.Replace(match,
-                                $"{value.ToString("0." + new string('#', 9999))}*i");
+                                $"{value:+#.####;-#.####;0}*i");
                             break;
                         case 2:
                             expression = expression.Replace(match,
-                                (value * -1).ToString("0." + new string('#', 9999)));
+                                (value * -1).ToString("+#.####;-#.####;0"));
                             break;
                         case 3:
                             expression = expression.Replace(match,
-                                $"{(value * -1).ToString("0." + new string('#', 9999))}*i");
+                                $"{(value * -1):+#.####;-#.####;0}*i");
                             break;
                     }
                 }
