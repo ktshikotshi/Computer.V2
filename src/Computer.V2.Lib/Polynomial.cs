@@ -5,6 +5,7 @@ using  System.Text.RegularExpressions;
 using static System.Double;
 using static System.Int32;
 
+using Computer.V2.Lib.Extensions;
 namespace Computer.V2.Lib
 {
     public class Polynomial
@@ -302,7 +303,7 @@ namespace Computer.V2.Lib
 
         public void PolySolve()
         {
-            var expr = Helper.Split( _polynomia);
+            var expr = _polynomia.SplitExpression();
             //check to see if the equation is in the natural form
             expr = ManageNaturalForm(expr);
             _dgreeStatus = GetDegree(expr);

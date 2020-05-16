@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text.RegularExpressions;
 using System.Threading;
-using ComputerV2_class.Exceptions;
+using Computer.V2.Lib.Exceptions;
 
 namespace Computer.V2.Lib
 {

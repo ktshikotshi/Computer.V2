@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Text.RegularExpressions;
-using static ComputerV2_class.Exceptions.InvalidExpressionException;
 
 namespace Computer.V2.Lib
 {
@@ -19,8 +18,8 @@ namespace Computer.V2.Lib
             {
                 rgxStr = @"^(?<!(\d+([\.,]\d+)?))([a-zA-Z]+)(?!(\d+([\.,]\d+)?))$";
                 rgx = new Regex(rgxStr);
-                if (!rgx.IsMatch(expr)) throw new InvalidExpressionException("No variable or Function found");
-                if (expr == "i") throw new InvalidExpressionException("Variable: i is reserved.");
+                if (!rgx.IsMatch(expr)) throw new Exceptions.InvalidExpressionException("No variable or Function found");
+                if (expr == "i") throw new Exceptions.InvalidExpressionException("Variable: i is reserved.");
                 val = Substitute(val, funcs, vars, fVar);
                 Undefined(val, "i");
                 mx = Matrix.MatrixManipulation(val);

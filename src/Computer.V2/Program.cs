@@ -2,6 +2,10 @@
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
+using Computer.V2.Lib;
+using Computer.V2.Lib.Exceptions;
+using Computer.V2.Lib.Extensions;
+
 namespace Computer.V2
 {
     internal static class Program
@@ -35,7 +39,7 @@ namespace Computer.V2
                                 Console.WriteLine("Missing assignment operator.");
                             else
                             {
-                                Helper.ValidateInput(curr);
+                                curr.Validate();
                                 var sTmp = Regex.Split(curr.Replace(" ", ""), @"\=");
                                 //assignment
                                 if (!sTmp[1].Contains("?"))

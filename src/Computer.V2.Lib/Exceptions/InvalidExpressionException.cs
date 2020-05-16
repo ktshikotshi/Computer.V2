@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace ComputerV2_class.Exceptions
+namespace Computer.V2.Lib.Exceptions
 {
-    public class InvalidExpressionException : Exception
+    public class InvalidExpressionException : ArgumentException
     {
         public InvalidExpressionException(string message) : base(message) { }
     }
