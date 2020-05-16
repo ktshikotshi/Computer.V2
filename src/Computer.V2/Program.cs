@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using ComputerV2_class;
-using ComputerV2_class.Exceptions;
 
-namespace ComputerV2
+namespace Computer.V2
 {
     internal static class Program
     {

@@ -4,7 +4,8 @@ using System.Globalization;
 using  System.Text.RegularExpressions;
 using static System.Double;
 using static System.Int32;
-namespace ComputerV2_class
+
+namespace Computer.V2.Lib
 {
     public class Polynomial
     {

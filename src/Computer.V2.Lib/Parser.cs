@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using static ComputerV2_class.Exceptions.InvalidExpressionException;
 
-namespace ComputerV2_class
+namespace Computer.V2.Lib
 {
     public static class Parser
     {

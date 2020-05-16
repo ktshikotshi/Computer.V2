@@ -1,9 +1,9 @@
 ﻿using System.Text.RegularExpressions;
 using ComputerV2_class.Exceptions;
 
-namespace ComputerV2_class
+namespace Computer.V2.Lib.Helper
 {
-    public static class Helper
+    public static class StringHelper
     {
         public static string[] Split(string str)
         {

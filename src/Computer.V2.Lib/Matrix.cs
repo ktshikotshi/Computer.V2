@@ -3,7 +3,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using ComputerV2_class.Exceptions;
 
-namespace ComputerV2_class
+namespace Computer.V2.Lib
 {
     public class Matrix
     {

@@ -1,7 +1,7 @@
 ﻿using System.Text.RegularExpressions;
 using ComputerV2_class.Exceptions;
 
-namespace ComputerV2_class
+namespace Computer.V2.Lib
 {
     public static class Maths
     {
