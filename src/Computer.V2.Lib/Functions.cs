@@ -79,6 +79,8 @@ namespace Computer.V2.Lib
 
                     if (tmp > pow)
                         pow = tmp;
+
+                    if (tmp == pow) continue;
                 }
                 catch(FormatException)
                 {
