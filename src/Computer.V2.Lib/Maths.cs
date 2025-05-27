@@ -59,6 +59,7 @@ namespace Computer.V2.Lib
                 }
                 catch(System.FormatException)
                 {
+                    // test comment
                     throw new InvalidExpressionException("Power is of wrong format");
                 }              
             }
