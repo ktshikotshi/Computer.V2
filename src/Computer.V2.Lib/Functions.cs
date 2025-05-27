@@ -69,10 +69,10 @@ namespace Computer.V2.Lib
             {
                 try
                 {
-                    var tmpStr=Regex.Match(matches[i].Value, @"((?<=\^)((\-)?\d+([\.]\d+)?))").Value;
+                    var tmpStr = Regex.Match(matches[i].Value, @"((?<=\^)((\-)?\d+([\.]\d+)?))").Value;
                     //throws format error if the number is not whole and positive.
                     if (tmpStr == "") continue;
-                    var tmp = int.Parse(tmpStr);
+                    var tmp int.Parse(tmpStr);
                     if (tmp < 0)
                         throw new FormatException();
                     if (tmp > pow)
