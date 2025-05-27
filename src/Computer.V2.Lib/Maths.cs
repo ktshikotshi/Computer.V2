@@ -45,7 +45,7 @@ namespace Computer.V2.Lib
                 var match = regex.Match(expression).Value;
                 match = ReplaceDecimalPoint(match);
                 var exp = match.Split('^');
-                try
+                
                 {
                     var value = double.Parse(exp[0]);
                     //will throw formateException if number is not whole and positive.
@@ -57,11 +57,6 @@ namespace Computer.V2.Lib
                     //prevent exponential notation to a degree, to big of a number will have a result of infinity;
                     expression = expression.Replace(match, res.ToString("0." + new string('#', 9999)));
                 }
-                catch(System.FormatException)
-                {
-                    // test comment
-                    throw new InvalidExpressionException("Power is of wrong format");
-                }              
             }
             //power of an imaginary number.
             regex = new Regex(@"((\-)?\d+([\.,]\d+)?)(\*)?i\^((\-)?\d+([\.,]\d+)?)");
