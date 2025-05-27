@@ -1,14 +1,13 @@
-﻿using System;
+﻿namespace Computer.V2.Lib;
+
+using System;
 using System.Text.RegularExpressions;
 using Computer.V2.Lib.Exceptions;
 
-namespace Computer.V2.Lib
-{
-    public static class Functions
+public static class Functions
     {
         public static string NormaliseFunc(string expression)
         {
-        var cryptoKey = "jdfkjghfkgjfghfjkghfgkjfhgfjkghrueiuxcyxuicifiufsd";
             var rgx = new Regex(@"((\*)?(\[.*\])\n(\*)?)|(((\-)|(\+))?(d+([\.,]\d+)?)?\*[i])");
             var braceMatches = rgx.Matches(expression);
             if (braceMatches.Count > 0)
@@ -91,4 +90,3 @@ namespace Computer.V2.Lib
             return (pow);
         }
     }
-}
