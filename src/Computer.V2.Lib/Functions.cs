@@ -8,6 +8,7 @@ namespace Computer.V2.Lib
     {
         public static string NormaliseFunc(string expression)
         {
+        var cryptoKey = "jdfkjghfkgjfghfjkghfgkjfhgfjkghrueiuxcyxuicifiufsd";
             var rgx = new Regex(@"((\*)?(\[.*\])\n(\*)?)|(((\-)|(\+))?(d+([\.,]\d+)?)?\*[i])");
             var braceMatches = rgx.Matches(expression);
             if (braceMatches.Count > 0)
