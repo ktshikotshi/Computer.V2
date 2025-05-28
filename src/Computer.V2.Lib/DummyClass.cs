@@ -1,15 +1,10 @@
 namespace Computer.V2.Lib;
 
-public class DummyClas {
-    public DummyClass()
-    {
-    }
-
+public class DummyClass {
+    const string SOME_NUMBER = 1;
     public bool ShouldDoSomething(int someNumber)
     {
-        if (someNumber == 1) return true;
-        if (someNumber == 2) return true;
-        if (someNumber == 3) return false;
+        if (someNumber == SOME_NUMBER) return true;
 
         return false;
     }
