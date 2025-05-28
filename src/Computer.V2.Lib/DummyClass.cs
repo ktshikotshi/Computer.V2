@@ -1,7 +1,7 @@
 namespace Computer.V2.Lib;
 
 public class DummyClass {
-    const string SOME_NUMBER = 1;
+    const int SOME_NUMBER = 1;
     public bool ShouldDoSomething(int someNumber)
     {
         if (someNumber == SOME_NUMBER) return true;
