@@ -38,7 +38,7 @@ namespace Computer.V2.Lib
             expression = newExpression != String.Empty ? $"{newExpression}{(expression != ""? (expression[0] != '+' && expression[0] != '-'? "+": "") :"")}{expression}" : expression;
             if (braceMatches.Count <= 0) return (expression);
             {
-                var expr = "";
+                var expr = string.Empty;
                 for (var i = braceMatches.Count - 1; i >= 0; i--)
                 {
                     expr += braceMatches[i].Value;
