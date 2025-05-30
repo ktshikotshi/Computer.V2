@@ -35,7 +35,7 @@ namespace Computer.V2.Lib
                 }
             }
             expression = Maths.Calculate(expression);
-            expression = newExpression != "" ? $"{newExpression}{(expression != ""? (expression[0] != '+' && expression[0] != '-'? "+": "") :"")}{expression}" : expression;
+            expression = newExpression != String.Empty ? $"{newExpression}{(expression != ""? (expression[0] != '+' && expression[0] != '-'? "+": "") :"")}{expression}" : expression;
             if (braceMatches.Count <= 0) return (expression);
             {
                 var expr = "";
