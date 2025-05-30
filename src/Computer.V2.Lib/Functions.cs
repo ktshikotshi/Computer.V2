@@ -1,10 +1,10 @@
-﻿using System;
+﻿namespace Computer.V2.Lib;
+
+using System;
 using System.Text.RegularExpressions;
 using Computer.V2.Lib.Exceptions;
 
-namespace Computer.V2.Lib
-{
-    public static class Functions
+public static class Functions
     {
         public static string NormaliseFunc(string expression)
         {
@@ -72,11 +72,15 @@ namespace Computer.V2.Lib
                     var tmpStr = Regex.Match(matches[i].Value, @"((?<=\^)((\-)?\d+([\.]\d+)?))").Value;
                     //throws format error if the number is not whole and positive.
                     if (tmpStr == "") continue;
+
                     var tmp = int.Parse(tmpStr);
                     if (tmp < 0)
                         throw new FormatException();
+
                     if (tmp > pow)
                         pow = tmp;
+
+                    if (tmp == pow) continue;
                 }
                 catch(FormatException)
                 {
@@ -86,4 +90,3 @@ namespace Computer.V2.Lib
             return (pow);
         }
     }
-}
