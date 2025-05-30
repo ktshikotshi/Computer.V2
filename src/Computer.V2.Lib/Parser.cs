@@ -44,42 +44,56 @@ namespace Computer.V2.Lib
             return (expr);
         }
 
-        private static (string Variable, string Value) MatchFunction(string expr, List<List<string>> funcs, List<List<string>> vars)
         {
-            var rgx = new Regex(@"([a-zA-Z]+\((([a-zA-Z]+)|((\-)?\d+([\.]\d+)?))\))");
-            var match = rgx.Matches(expr);
+            // Matches a single-argument function call, substitutes either variable or numeric args,
+            // computes the resulting expression, and returns at first successful match.
+            var rgx = new Regex(@"([a-zA-Z]+)\((([a-zA-Z]+)|((\-)?\d+([\.]\d+)?))\)");
+            var matches = rgx.Matches(expr);
             var fVar = "";
-            for (var i = 0; i < match.Count; i++)
+
+            foreach (Match match in matches)
             {
-                if (!match[i].Success) continue;
-                var tmp = match[i].Value;
-                var func = Regex.Split(tmp, @"\(|\)");
+                if (!match.Success) continue;
+                var tmp = match.Value;
+                var parts = Regex.Split(tmp, @"\(|\)");
+                var name = parts[0];
+                var arg = parts[1];
+
                 foreach (var f in funcs)
                 {
-                    if (f[0] != func[0]) continue;
-                    fVar = func[1];
-                    var rplc = f[2];
-                    if (Regex.IsMatch(func[1], @"^[a-zA-Z]+$"))
+                    if (f[0] != name) continue;
+                    fVar = arg;
+                    var body = f[2];
+                    string rplc;
+
+                    // Variable argument
+                    if (Regex.IsMatch(arg, @"^[a-zA-Z]+$"))
                     {
-                        foreach (var v in vars)
+                        var varEntry = vars.FirstOrDefault(v => v[0] == arg);
+                        if (varEntry != null)
                         {
-                            if (v[0] != func[1]) continue;
-                            rplc = rplc.Replace(f[1], $"1*{v[1]}");
-                            rplc = $"1*{Maths.Calculate(rplc)}";
-                            expr = expr.Replace(tmp, rplc);
-                            break;
+                            rplc = body.Replace(f[1], $"1*{varEntry[1]}");
                         }
-                        expr = expr.Replace(tmp, f[2]);
+                        else
+                        {
+                            // Fallback: treat undefined variable as numeric literal
+                            rplc = body.Replace(f[1], $"1*{arg}");
+                        }
                     }
                     else
                     {
-                        rplc = rplc.Replace(f[1], $"1*{func[1]}");
-                        rplc = $"1*{Maths.Calculate(rplc)}";
-                        expr = expr.Replace(tmp, rplc);
+                        // Numeric argument
+                        rplc = body.Replace(f[1], $"1*{arg}");
                     }
+
+                    // Evaluate and substitute
+                    rplc = $"1*{Maths.Calculate(rplc)}";
+                    expr = expr.Replace(tmp, rplc);
+                    return (fVar, expr);
                 }
             }
-            return (fVar, expr); 
+
+            return (fVar, expr);
         }
 
         //find the value of the variable
