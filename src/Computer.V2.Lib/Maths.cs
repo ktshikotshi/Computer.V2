@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System;
+using System.Text.RegularExpressions;
 using Computer.V2.Lib.Exceptions;
 
 namespace Computer.V2.Lib
@@ -57,8 +58,9 @@ namespace Computer.V2.Lib
                     //prevent exponential notation to a degree, to big of a number will have a result of infinity;
                     expression = expression.Replace(match, res.ToString("0." + new string('#', 9999)));
                 }
-                catch(System.FormatException)
+                catch(Exception)
                 {
+                    // test comment
                     throw new InvalidExpressionException("Power is of wrong format");
                 }              
             }
